@@ -1,0 +1,1182 @@
+{
+  "_meta": {
+    "description": "Noga Web funnel definitions for analytics-mcp run_funnel_report",
+    "property_id": "535285702",
+    "default_date_range": [
+      {
+        "start_date": "30daysAgo",
+        "end_date": "yesterday",
+        "name": "Last30Days"
+      }
+    ],
+    "match_types": {
+      "EXACT": 1,
+      "BEGINS_WITH": 2,
+      "ENDS_WITH": 3,
+      "CONTAINS": 4,
+      "FULL_REGEXP": 5
+    },
+    "notes": [
+      "analytics-mcp runs these via run_funnel_report — it does not save funnels in GA4 UI.",
+      "URL-only funnels miss wizard progress on /aml/create and /document/send — prefer event funnels there.",
+      "Replace property_id before running."
+    ]
+  },
+  "funnels": {
+    "aml_url_list_create_view_edit": {
+      "label": "AML — URL funnel (list → create → view → edit)",
+      "priority": "secondary",
+      "funnel_steps": [
+        {
+          "name": "AML list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/aml",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Start create",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/aml/create",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "View request",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/aml/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Edit request",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/aml/[^/]+/edit$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "aml_event_create_wizard": {
+      "label": "AML — Event funnel: create wizard (recommended)",
+      "priority": "primary",
+      "funnel_steps": [
+        { "name": "AML list viewed", "event": "aml_list_viewed" },
+        { "name": "Create started", "event": "aml_create_started" },
+        {
+          "name": "Step 1 — type selected",
+          "filter_expression": {
+            "funnel_event_filter": {
+              "event_name": "aml_create_step_completed",
+              "funnel_parameter_filter_expression": {
+                "funnel_parameter_filter": {
+                  "event_parameter_name": "step",
+                  "numeric_filter": {
+                    "operation": 1,
+                    "value": { "int64_value": "1" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Step 2 — property/contact",
+          "filter_expression": {
+            "funnel_event_filter": {
+              "event_name": "aml_create_step_completed",
+              "funnel_parameter_filter_expression": {
+                "funnel_parameter_filter": {
+                  "event_parameter_name": "step",
+                  "numeric_filter": {
+                    "operation": 1,
+                    "value": { "int64_value": "2" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Step 3 — details",
+          "filter_expression": {
+            "funnel_event_filter": {
+              "event_name": "aml_create_step_completed",
+              "funnel_parameter_filter_expression": {
+                "funnel_parameter_filter": {
+                  "event_parameter_name": "step",
+                  "numeric_filter": {
+                    "operation": 1,
+                    "value": { "int64_value": "3" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Request submitted (not draft)",
+          "filter_expression": {
+            "funnel_event_filter": {
+              "event_name": "aml_request_submitted",
+              "funnel_parameter_filter_expression": {
+                "funnel_parameter_filter": {
+                  "event_parameter_name": "is_draft",
+                  "string_filter": {
+                    "match_type": 1,
+                    "value": "false",
+                    "case_sensitive": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        { "name": "Status viewed", "event": "aml_status_viewed" }
+      ]
+    },
+    "document_url_list_send_view_edit": {
+      "label": "Document — URL funnel (list → send → view → edit)",
+      "priority": "secondary",
+      "funnel_steps": [
+        {
+          "name": "Document list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/document",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send document",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/document/send",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "View document",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/document/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Edit document",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/document/[^/]+/edit$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "document_event_send_completion": {
+      "label": "Document — Event funnel: send completion (recommended, partial)",
+      "priority": "primary",
+      "gap": "No document_send_step_completed events — wizard steps 1–4 not tracked by event yet.",
+      "funnel_steps": [
+        {
+          "name": "Document list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/document",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send page",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/document/send",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        { "name": "Document sent", "event": "document_sent" }
+      ]
+    },
+    "signin_url_entry_login_home": {
+      "label": "Sign in — URL funnel (entry → login → home)",
+      "priority": "secondary",
+      "funnel_steps": [
+        {
+          "name": "Root redirect",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login page",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/login",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Authenticated home",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/home",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "signin_url_auth_failure_recovery": {
+      "label": "Sign in — Auth failure / recovery (401 → login → home)",
+      "priority": "secondary",
+      "funnel_steps": [
+        {
+          "name": "Unauthorized",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/401",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/login",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Home",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/home",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "signin_event_successful_login": {
+      "label": "Sign in — Event funnel: successful login (recommended)",
+      "priority": "primary",
+      "gap": "Magic-link sign-in does not fire login event — use URL funnel or add method=magic_link.",
+      "funnel_steps": [
+        {
+          "name": "Login page view",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/login",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login success (password or JWT)",
+          "filter_expression": {
+            "funnel_event_filter": {
+              "event_name": "login",
+              "funnel_parameter_filter_expression": {
+                "or_group": {
+                  "expressions": [
+                    {
+                      "funnel_parameter_filter": {
+                        "event_parameter_name": "method",
+                        "string_filter": {
+                          "match_type": 1,
+                          "value": "password",
+                          "case_sensitive": false
+                        }
+                      }
+                    },
+                    {
+                      "funnel_parameter_filter": {
+                        "event_parameter_name": "method",
+                        "string_filter": {
+                          "match_type": 1,
+                          "value": "jwt",
+                          "case_sensitive": false
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "sso_url_entry_return_home": {
+      "label": "SSO — URL funnel (SSO entry → return → home)",
+      "priority": "secondary",
+      "gap": "Final redirect to external app is off-site and not visible to GA.",
+      "funnel_steps": [
+        {
+          "name": "SSO landing",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/sso",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "SSO return (magic link with client_id)",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/sso",
+                      "case_sensitive": false
+                    }
+                  }
+                },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePathPlusQueryString",
+                    "string_filter": {
+                      "match_type": 4,
+                      "value": "client_id",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Post-auth app entry",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/home",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "property_onboarding": {
+      "label": "Core — Property onboarding",
+      "priority": "suggested",
+      "funnel_steps": [
+        {
+          "name": "Property list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/property",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create property",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/property/create",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "View property",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/property/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "contact_onboarding": {
+      "label": "Core — Contact onboarding",
+      "priority": "suggested",
+      "funnel_steps": [
+        {
+          "name": "Contact list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/contact",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create contact",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/contact/create",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "View contact",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/contact/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "contact_import": {
+      "label": "Core — Contact import",
+      "priority": "suggested",
+      "funnel_steps": [
+        {
+          "name": "Contact list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/contact",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Import contacts",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/contact/import",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "building_onboarding": {
+      "label": "Core — Building onboarding",
+      "priority": "suggested",
+      "funnel_steps": [
+        {
+          "name": "Building list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/building",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create building",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/building/create",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "View building",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/building/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "listing_onboarding": {
+      "label": "Core — Listing onboarding (WIP routes)",
+      "priority": "suggested",
+      "funnel_steps": [
+        {
+          "name": "Listing list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/listing",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create listing",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/listing/create",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "View listing",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/listing/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "monday_task_drilldown": {
+      "label": "Engagement — Monday task drill-down",
+      "priority": "suggested",
+      "funnel_steps": [
+        {
+          "name": "Monday home",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/monday",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Board or group",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/monday/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Task detail",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/monday/[^/]+/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "settings_profile": {
+      "label": "Engagement — Settings / profile",
+      "priority": "suggested",
+      "funnel_steps": [
+        {
+          "name": "Home",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/home",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Settings",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/settings",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "access_denied_recovery": {
+      "label": "Public — Access denied recovery (403 → home)",
+      "priority": "suggested",
+      "funnel_steps": [
+        {
+          "name": "Forbidden",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/403",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Home",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/home",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "document_lifecycle_cross_feature": {
+      "label": "Cross-feature — Document lifecycle",
+      "priority": "high_value",
+      "funnel_steps": [
+        {
+          "name": "Document list",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/document",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send page",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 1,
+                      "value": "/document/send",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        { "name": "Document sent", "event": "document_sent" },
+        {
+          "name": "Revisit document detail",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/document/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "aml_from_email": {
+      "label": "Cross-feature — AML from email (utm_source)",
+      "priority": "high_value",
+      "note": "Step 1 uses sessionCampaignName or firstUserCampaign — confirm utm_source maps to your GA dimension.",
+      "funnel_steps": [
+        {
+          "name": "AML detail from campaign",
+          "filter_expression": {
+            "and_group": {
+              "expressions": [
+                { "funnel_event_filter": { "event_name": "page_view" } },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "pagePath",
+                    "string_filter": {
+                      "match_type": 5,
+                      "value": "^/aml/[^/]+$",
+                      "case_sensitive": false
+                    }
+                  }
+                },
+                {
+                  "funnel_field_filter": {
+                    "field_name": "sessionSource",
+                    "string_filter": {
+                      "match_type": 4,
+                      "value": "email",
+                      "case_sensitive": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        { "name": "AML status viewed", "event": "aml_status_viewed" }
+      ]
+    }
+  },
+  "instrumentation_gaps_in_web_repo": [
+    {
+      "gap": "document_send_step_completed",
+      "action": "Add step events for document send wizard (steps 1–4) in DDRE-Global/web"
+    },
+    {
+      "gap": "login event for magic_link",
+      "action": "Fire login with method=magic_link on /login?token=… and /sso?token=…"
+    },
+    {
+      "gap": "sso_invalid_entry",
+      "action": "Optional custom event to split valid vs invalid SSO (missing client_id/redirect_uri)"
+    }
+  ]
+}

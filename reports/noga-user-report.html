@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noga User Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface-2: #243044;
+      --border: #2d3a4f;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --accent: #4f8cff;
+      --accent-2: #7c5cff;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --aml: #a78bfa;
+      --doc: #38bdf8;
+      --auth: #fb923c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1a2332 0%, #0f1419 50%, #1a1a3e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem 2.5rem;
+    }
+
+    .hero-inner { max-width: 1200px; margin: 0 auto; }
+
+    .badge {
+      display: inline-block;
+      background: rgba(79, 140, 255, 0.15);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 720px; }
+
+    .meta {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    .meta strong { color: var(--text); }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    section { margin-bottom: 3rem; }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 650;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.01em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+      max-width: 800px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .kpi-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+    }
+
+    .kpi-value {
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .kpi-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .insight {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      padding: 1.25rem;
+    }
+
+    .insight.warning { border-left-color: var(--warning); }
+    .insight.success { border-left-color: var(--success); }
+    .insight.danger { border-left-color: var(--danger); }
+
+    .insight h3 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .insight p { font-size: 0.875rem; color: var(--muted); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.aml { background: var(--aml); }
+    .dot.doc { background: var(--doc); }
+    .dot.auth { background: var(--auth); }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .chart-row { grid-template-columns: 1fr; }
+    }
+
+    .chart-wrap { position: relative; height: 280px; }
+
+    /* Path exploration */
+    .path-explore {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1rem 1rem;
+      overflow: hidden;
+    }
+
+    .path-explore-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      padding: 0 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .path-explore-header h3 {
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .path-explore-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .path-explore-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .path-explore-legend i {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .path-explore-wrap {
+      overflow-x: auto;
+      margin: 0 -0.25rem;
+      padding: 0.25rem;
+    }
+
+    .path-explore-svg {
+      display: block;
+      min-width: 100%;
+      height: auto;
+    }
+
+    .path-link {
+      fill-opacity: 0.28;
+      stroke: none;
+      transition: fill-opacity 0.15s ease;
+    }
+
+    .path-link:hover,
+    .path-link.active {
+      fill-opacity: 0.55;
+    }
+
+    .path-node rect {
+      stroke-width: 1.5;
+      transition: filter 0.15s ease;
+    }
+
+    .path-node:hover rect,
+    .path-node.active rect {
+      filter: brightness(1.15);
+    }
+
+    .path-node-label {
+      font-size: 10px;
+      font-weight: 600;
+      fill: var(--text);
+      pointer-events: none;
+    }
+
+    .path-node-value {
+      font-size: 10px;
+      fill: var(--muted);
+      pointer-events: none;
+    }
+
+    .path-col-title {
+      font-size: 10px;
+      font-weight: 600;
+      fill: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .path-col-line {
+      stroke: var(--border);
+      stroke-width: 1;
+      stroke-dasharray: 4 4;
+    }
+
+    .path-tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: #111827;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.78rem;
+      color: var(--text);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+      max-width: 260px;
+    }
+
+    .path-tooltip.visible { opacity: 1; }
+
+    .path-tooltip strong {
+      display: block;
+      margin-bottom: 0.15rem;
+      color: #fff;
+    }
+
+    .path-tooltip em {
+      color: var(--muted);
+      font-style: normal;
+      font-size: 0.72rem;
+    }
+
+    .metrics-key {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    .metrics-key h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+    }
+
+    .metrics-key dl {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.5rem 1.5rem;
+    }
+
+    .metrics-key dt {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .metrics-key dd {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .funnel-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .funnel-step {
+      display: grid;
+      grid-template-columns: 180px 1fr 80px 80px;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+
+    .funnel-step:last-child { border-bottom: none; }
+
+    .funnel-bar-wrap {
+      background: var(--surface-2);
+      border-radius: 6px;
+      height: 28px;
+      overflow: hidden;
+    }
+
+    .funnel-bar {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-left: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fff;
+      min-width: 40px;
+    }
+
+    .funnel-bar.aml { background: linear-gradient(90deg, var(--aml), #7c3aed); }
+    .funnel-bar.doc { background: linear-gradient(90deg, var(--doc), #0284c7); }
+    .funnel-bar.auth { background: linear-gradient(90deg, var(--auth), #ea580c); }
+
+    .rate { font-weight: 600; }
+    .rate.good { color: var(--success); }
+    .rate.mid { color: var(--warning); }
+    .rate.bad { color: var(--danger); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:hover td { background: rgba(79, 140, 255, 0.05); }
+
+    .path-arrow { color: var(--accent); font-weight: 600; }
+
+    .event-tag {
+      display: inline-block;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.15rem 0.5rem;
+      font-family: "SF Mono", Consolas, monospace;
+      font-size: 0.78rem;
+    }
+
+    .event-tag.product { border-color: var(--aml); color: var(--aml); }
+    .event-tag.doc { border-color: var(--doc); color: var(--doc); }
+
+    .snapshot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .snapshot {
+      background: var(--surface-2);
+      border-radius: 10px;
+      padding: 1rem;
+      border: 1px solid var(--border);
+    }
+
+    .snapshot-title {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .snapshot-value { font-size: 1.5rem; font-weight: 700; }
+    .snapshot-detail { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .hero { background: #f5f5f5; }
+      .kpi, .card, .insight, .snapshot { border: 1px solid #ccc; background: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="badge">Noga User Report</span>
+    <h1>Noga Web — How Users Move Through the Product</h1>
+    <p class="subtitle">
+      A June 2026 view of user journeys, product funnels, and behavioural signals across authentication,
+      AML compliance, and document workflows. Built from live Google Analytics 4 data via analytics-mcp.
+    </p>
+    <div class="meta">
+      <span><strong>Property:</strong> Noga (535285702)</span>
+      <span><strong>Period:</strong> 1 June 2026 → 30 June 2026</span>
+      <span><strong>Generated:</strong> 6 July 2026</span>
+      <span><strong>Industry:</strong> Real Estate</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Executive KPIs -->
+  <section>
+    <h2>Executive Snapshot</h2>
+    <p class="section-desc">Headline metrics for the reporting period. Engagement is healthy; volume reflects an early-stage product with concentrated power-user behaviour.</p>
+
+    <div class="metrics-key">
+      <h3>Metrics used in this report</h3>
+      <dl>
+        <dt>Sessions</dt>
+        <dd>855 total visits. Used for landing-page entry and session-level rates (e.g. 331 sessions started on <code>/login</code>).</dd>
+        <dt>Active users</dt>
+        <dd>159 people with engaged activity in the period. Funnel steps count <em>active users</em> — deduplicated people per step, not sessions.</dd>
+        <dt>Total users</dt>
+        <dd>Distinct people on a page or event row. Often lower than page views because one user generates many views.</dd>
+        <dt>Screen page views</dt>
+        <dd>5,260 <code>page_view</code> events total. Path transitions and page rankings use this — a user revisiting a page counts again.</dd>
+        <dt>Event count</dt>
+        <dd>12,814 total events in June. <code>document_sent</code> fired 61 times across 28 total users.</dd>
+      </dl>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">Active Users</div>
+        <div class="kpi-value">159</div>
+        <div class="kpi-sub">95 new users (60%)</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Sessions</div>
+        <div class="kpi-value">855</div>
+        <div class="kpi-sub">6.2 pages per session</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Engagement Rate</div>
+        <div class="kpi-value">66%</div>
+        <div class="kpi-sub">567 engaged sessions</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Avg Session</div>
+        <div class="kpi-value">7m 40s</div>
+        <div class="kpi-sub">Deep product usage</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Documents Sent</div>
+        <div class="kpi-value">28</div>
+        <div class="kpi-sub">28 active users (funnel)</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">AML Submitted</div>
+        <div class="kpi-value">8</div>
+        <div class="kpi-sub">8 active users (funnel)</div>
+      </div>
+    </div>
+
+    <div class="insight-grid">
+      <div class="insight success">
+        <h3>Document workflow is the strongest conversion path</h3>
+        <p>42% of active users who view the document list go on to send a document (67 → 28 users). This is the most reliable end-to-end product outcome in June.</p>
+      </div>
+      <div class="insight warning">
+        <h3>AML create funnel loses ~92% before status review</h3>
+        <p>Only 3 of 38 AML list viewers reach status review (8% end-to-end). 53% of list viewers never start creation; 56% of starters don't submit.</p>
+      </div>
+      <div class="insight">
+        <h3>Login is the dominant front door</h3>
+        <p>39% of sessions (331 of 855) land on <code>/login</code>. 66% of active users who view login also reach home in the auth funnel (93 of 141). Login remains the highest-traffic page by page views (2,206).</p>
+      </div>
+      <div class="insight danger">
+        <h3>Cross-feature navigation is common</h3>
+        <p>Users frequently pivot between AML and Documents mid-journey. After viewing AML list, 14 active users next visit Documents — suggesting workflow fragmentation or multi-tasking agents.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Daily traffic -->
+  <section>
+    <h2>Daily Event Volume</h2>
+    <p class="section-desc">Total GA4 <strong>event count</strong> per day in June 2026. Spikes on 16–17 Jun and 29 Jun warrant investigation — likely bulk activity, testing, or a deployment.</p>
+
+    <div class="card">
+      <div class="chart-wrap" style="height: 320px;"><canvas id="dailyEventsChart"></canvas></div>
+      <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--muted);">
+        <strong>Peak days:</strong> 29 Jun (3,100 events · 36 sessions · 17 active users),
+        16 Jun (1,220 · 69 sessions · 30 users),
+        17 Jun (1,024 · 95 sessions · 57 users).
+        Weekends (e.g. 6–7, 13–14 Jun) show minimal activity — consistent with B2B office usage.
+      </p>
+    </div>
+  </section>
+
+  <!-- Primary user paths -->
+  <section>
+    <h2>Key User Paths</h2>
+    <p class="section-desc">GA4-style path exploration across four sequential steps. Step 1 node size = <strong>sessions</strong> (session landing page). Steps 2–3 links = <strong>screen page views</strong> (page-to-page transitions). Step 4 outcomes = <strong>active users</strong> (funnel completion). Hover for the exact metric on each path.</p>
+
+    <div class="path-explore">
+      <div class="path-explore-header">
+        <h3>Path Exploration — Top journeys (June 2026)</h3>
+        <div class="path-explore-legend">
+          <span><i style="background:#fb923c"></i> Auth</span>
+          <span><i style="background:#4f8cff"></i> Hub</span>
+          <span><i style="background:#38bdf8"></i> Documents</span>
+          <span><i style="background:#a78bfa"></i> AML</span>
+          <span><i style="background:#34d399"></i> Outcome</span>
+        </div>
+      </div>
+      <div class="path-explore-wrap">
+        <svg id="pathExploreSvg" class="path-explore-svg" role="img" aria-label="User path exploration diagram"></svg>
+      </div>
+    </div>
+    <div id="pathTooltip" class="path-tooltip"></div>
+
+    <div class="card" style="margin-top: 1.5rem;">
+      <h3>Top Internal Navigation Transitions</h3>
+      <p class="section-desc" style="margin-bottom: 1rem;">Where users go immediately after a page — the strongest signals of intentional workflow.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>From</th>
+            <th></th>
+            <th>To</th>
+            <th>Page Views</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/login</code></td>
+            <td class="path-arrow">→</td>
+            <td><code>/home</code></td>
+            <td>168</td>
+            <td>Primary post-auth destination</td>
+          </tr>
+          <tr>
+            <td><code>/document</code></td>
+            <td class="path-arrow">→</td>
+            <td><code>/document/send</code></td>
+            <td>158</td>
+            <td>Core document workflow — list to send</td>
+          </tr>
+          <tr>
+            <td><code>/home</code></td>
+            <td class="path-arrow">→</td>
+            <td><code>/document</code></td>
+            <td>80</td>
+            <td>Home drives document adoption</td>
+          </tr>
+          <tr>
+            <td><code>/aml</code></td>
+            <td class="path-arrow">→</td>
+            <td><code>/aml/create</code></td>
+            <td>54</td>
+            <td>AML list to create wizard</td>
+          </tr>
+          <tr>
+            <td><code>/home</code></td>
+            <td class="path-arrow">→</td>
+            <td><code>/monday</code></td>
+            <td>36</td>
+            <td>Task management from home</td>
+          </tr>
+          <tr>
+            <td><code>/home</code></td>
+            <td class="path-arrow">→</td>
+            <td><code>/document/send</code></td>
+            <td>30</td>
+            <td>Direct send shortcut from home</td>
+          </tr>
+          <tr>
+            <td><code>/document/send</code></td>
+            <td class="path-arrow">→</td>
+            <td><code>/home</code></td>
+            <td>25</td>
+            <td>Return to hub after send attempt</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Funnels -->
+  <section>
+    <h2>Product Funnels</h2>
+    <p class="section-desc">Step-by-step conversion through the two revenue-critical workflows plus authentication. Funnel bars show <strong>active users</strong> at each step (deduplicated people, not sessions or page views).</p>
+
+    <div class="card">
+      <h3><span class="dot doc"></span> Document Send Funnel</h3>
+      <div class="funnel-steps">
+        <div class="funnel-step">
+          <span>1. Document list</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar doc" style="width: 100%;">67 users</div></div>
+          <span class="rate good">—</span>
+          <span>100%</span>
+        </div>
+        <div class="funnel-step">
+          <span>2. Send page</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar doc" style="width: 69%;">46 users</div></div>
+          <span class="rate good">69%</span>
+          <span>69% of step 1</span>
+        </div>
+        <div class="funnel-step">
+          <span>3. Document sent</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar doc" style="width: 42%;">28 users</div></div>
+          <span class="rate good">61%</span>
+          <span>42% of step 1</span>
+        </div>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--muted);">
+        <strong>After send:</strong> 15 active users return to home, 7 to login, 3 back to document list (funnel next-action).
+        Send-page drop-off (18 active users) often shows no next action (20) or returns to list (9 page views).
+      </p>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot aml"></span> AML Create Funnel</h3>
+      <div class="funnel-steps">
+        <div class="funnel-step">
+          <span>1. AML list viewed</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar aml" style="width: 100%;">38 users</div></div>
+          <span class="rate good">—</span>
+          <span>100%</span>
+        </div>
+        <div class="funnel-step">
+          <span>2. Create started</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar aml" style="width: 47%;">18 users</div></div>
+          <span class="rate mid">47%</span>
+          <span>47% of step 1</span>
+        </div>
+        <div class="funnel-step">
+          <span>3. Request submitted</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar aml" style="width: 21%;">8 users</div></div>
+          <span class="rate mid">44%</span>
+          <span>21% of step 1</span>
+        </div>
+        <div class="funnel-step">
+          <span>4. Status viewed</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar aml" style="width: 8%;">3 users</div></div>
+          <span class="rate bad">38%</span>
+          <span>8% of step 1</span>
+        </div>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--muted);">
+        <strong>Drop-off signal:</strong> After AML list, 14 active users go to Documents instead of create. 53% of list viewers never start creation; 56% of starters don't submit.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot auth"></span> Authentication Funnel</h3>
+      <div class="funnel-steps">
+        <div class="funnel-step">
+          <span>1. Login page view</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar auth" style="width: 100%;">141 users</div></div>
+          <span class="rate good">—</span>
+          <span>100%</span>
+        </div>
+        <div class="funnel-step">
+          <span>2. Home page</span>
+          <div class="funnel-bar-wrap"><div class="funnel-bar auth" style="width: 66%;">93 users</div></div>
+          <span class="rate good">66%</span>
+          <span>66% of step 1</span>
+        </div>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--muted);">
+        SSO landing (<code>/sso</code>) accounts for 75 session landings (24 total users). Login landing bounce rate is 16% of sessions.
+      </p>
+    </div>
+  </section>
+
+  <!-- Events & Pages charts -->
+  <section>
+    <h2>Events &amp; Page Snapshots</h2>
+    <p class="section-desc">Product-specific custom events alongside top pages. Custom events reveal intent beyond URL navigation.</p>
+
+    <div class="chart-row">
+      <div class="card">
+        <h3>Top Product Events</h3>
+        <div class="chart-wrap"><canvas id="eventsChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Top Pages by Views</h3>
+        <div class="chart-wrap"><canvas id="pagesChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1.25rem;">
+      <h3>Event Catalogue — Product Signals</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Count</th>
+            <th>Total Users</th>
+            <th>Events/User</th>
+            <th>Signal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="event-tag product">aml_list_viewed</span></td>
+            <td>331</td><td>38</td><td>8.7</td>
+            <td>High repeat visits — agents checking AML status frequently</td>
+          </tr>
+          <tr>
+            <td><span class="event-tag product">aml_create_started</span></td>
+            <td>111</td><td>19</td><td>5.8</td>
+            <td>Creation attempts; ~53% of list viewers never start</td>
+          </tr>
+          <tr>
+            <td><span class="event-tag product">aml_create_step_completed</span></td>
+            <td>138</td><td>19</td><td>7.3</td>
+            <td>Wizard progress across AML request types</td>
+          </tr>
+          <tr>
+            <td><span class="event-tag doc">document_sent</span></td>
+            <td>61</td><td>28</td><td>2.2</td>
+            <td>Core value delivery — documents successfully dispatched</td>
+          </tr>
+          <tr>
+            <td><span class="event-tag product">aml_request_submitted</span></td>
+            <td>16</td><td>9</td><td>1.8</td>
+            <td>Completed AML requests (non-draft)</td>
+          </tr>
+          <tr>
+            <td><span class="event-tag product">aml_status_viewed</span></td>
+            <td>62</td><td>11</td><td>5.6</td>
+            <td>Post-submission monitoring behaviour</td>
+          </tr>
+          <tr>
+            <td><span class="event-tag">form_start</span></td>
+            <td>212</td><td>90</td><td>2.4</td>
+            <td>Broad form engagement across features</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="snapshot-grid" style="margin-top: 1.25rem;">
+      <div class="snapshot">
+        <div class="snapshot-title">Login Page</div>
+        <div class="snapshot-value">2,206</div>
+        <div class="snapshot-detail">page views · 142 total users · avg 1m 44s/session</div>
+      </div>
+      <div class="snapshot">
+        <div class="snapshot-title">Home Dashboard</div>
+        <div class="snapshot-value">669</div>
+        <div class="snapshot-detail">page views · 98 total users · avg 4m 16s/session</div>
+      </div>
+      <div class="snapshot">
+        <div class="snapshot-title">Document List</div>
+        <div class="snapshot-value">515</div>
+        <div class="snapshot-detail">page views · 67 total users</div>
+      </div>
+      <div class="snapshot">
+        <div class="snapshot-title">AML List</div>
+        <div class="snapshot-value">396</div>
+        <div class="snapshot-detail">page views · 45 total users · avg 4m 5s/session</div>
+      </div>
+      <div class="snapshot">
+        <div class="snapshot-title">Document Send</div>
+        <div class="snapshot-value">228</div>
+        <div class="snapshot-detail">page views · 48 total users · avg 3m 31s/session</div>
+      </div>
+      <div class="snapshot">
+        <div class="snapshot-title">SSO Entry</div>
+        <div class="snapshot-value">228</div>
+        <div class="snapshot-detail">page views · 52 total users · 75 session landings</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Device & landing -->
+  <section>
+    <h2>Audience &amp; Entry Points</h2>
+    <p class="section-desc">How users arrive and which devices they use. Desktop dominates — consistent with agent/broker office workflows.</p>
+
+    <div class="chart-row">
+      <div class="card">
+        <h3>Device Split</h3>
+        <div class="chart-wrap"><canvas id="deviceChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Session Landing Pages</h3>
+        <div class="chart-wrap"><canvas id="landingChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recommendations -->
+  <section>
+    <h2>Strategic Recommendations</h2>
+    <p class="section-desc">Data-backed priorities from funnel (active users) and navigation (page view) analysis.</p>
+
+    <div class="insight-grid">
+      <div class="insight danger">
+        <h3>1. Fix AML list → create conversion</h3>
+        <p>53% of AML list viewers abandon before starting creation. 14 pivot to Documents instead. Audit list UX: CTA visibility, empty states, and loading friction.</p>
+      </div>
+      <div class="insight warning">
+        <h3>2. Reduce send-page abandonment</h3>
+        <p>39% drop off at document send (18 of 46 active users). 20 show "no next action" — likely form errors or incomplete sends. Instrument wizard step events (gap noted in tracking spec).</p>
+      </div>
+      <div class="insight">
+        <h3>3. Consolidate post-auth routing</h3>
+        <p>Login → Home is strong (168 page views) but login remains 42% of all page views. Consider default deep-links to last-used feature (Documents or AML) for returning agents.</p>
+      </div>
+      <div class="insight success">
+        <h3>4. Double down on Document workflow</h3>
+        <p>42% list-to-sent conversion is the benchmark. Use this flow's patterns (clear steps, strong list→action path) as template for AML wizard redesign.</p>
+      </div>
+      <div class="insight warning">
+        <h3>5. Investigate 29 Jun traffic spike</h3>
+        <p>3,100 events on a single day (4× the daily average) with only 36 sessions suggests automated activity, bulk imports, or a tracking anomaly — validate with engineering before drawing user-behaviour conclusions for that date.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Generated from Google Analytics 4 property <strong>Noga (535285702)</strong> via analytics-mcp ·
+  Reporting period: June 2026 (1–30 Jun) · Not sampled · Currency: GBP
+</footer>
+
+<script>
+  /* ── Path exploration (GA4-style sankey) ── */
+  (function () {
+    const TONES = {
+      auth:    { fill: '#fb923c', stroke: '#ea580c', link: '#fb923c' },
+      accent:  { fill: '#4f8cff', stroke: '#2563eb', link: '#4f8cff' },
+      doc:     { fill: '#38bdf8', stroke: '#0284c7', link: '#38bdf8' },
+      aml:     { fill: '#a78bfa', stroke: '#7c3aed', link: '#a78bfa' },
+      success: { fill: '#34d399', stroke: '#059669', link: '#34d399' },
+      muted:   { fill: '#64748b', stroke: '#475569', link: '#8b9cb3' },
+    };
+
+    const columns = [
+      {
+        title: 'Step 1 — Session start',
+        nodes: [
+          { id: 's1-login', label: '/login', sub: '331 sessions', value: 331, tone: 'auth' },
+          { id: 's1-home',  label: '/home',  sub: '117 sessions', value: 117, tone: 'accent' },
+          { id: 's1-sso',   label: '/sso',   sub: '75 sessions',  value: 75,  tone: 'auth' },
+          { id: 's1-doc',   label: '/document', sub: '65 sessions', value: 65, tone: 'doc' },
+          { id: 's1-aml',   label: '/aml',   sub: '35 sessions',  value: 35,  tone: 'aml' },
+        ],
+      },
+      {
+        title: 'Step 2 — Next page',
+        nodes: [
+          { id: 's2-home',   label: '/home',          sub: '203 page views', value: 203, tone: 'accent' },
+          { id: 's2-doc',    label: '/document',      sub: '80 page views',  value: 80,  tone: 'doc' },
+          { id: 's2-send',   label: '/document/send', sub: '75 page views',  value: 75,  tone: 'doc' },
+          { id: 's2-create', label: '/aml/create',    sub: '54 page views',  value: 54,  tone: 'aml' },
+          { id: 's2-monday', label: '/monday',        sub: '36 page views',  value: 36,  tone: 'muted' },
+        ],
+      },
+      {
+        title: 'Step 3 — Deep action',
+        nodes: [
+          { id: 's3-send',   label: '/document/send', sub: '228 page views', value: 228, tone: 'doc' },
+          { id: 's3-create', label: '/aml/create',    sub: '131 page views', value: 131, tone: 'aml' },
+          { id: 's3-aml',    label: '/aml',           sub: '39 page views',  value: 39,  tone: 'aml' },
+          { id: 's3-home',   label: '/home',          sub: '45 page views',  value: 45,  tone: 'accent' },
+        ],
+      },
+      {
+        title: 'Step 4 — Outcome',
+        nodes: [
+          { id: 's4-docsent', label: 'document_sent', sub: '28 active users', value: 28, tone: 'success' },
+          { id: 's4-amlsub',  label: 'aml_submitted', sub: '8 active users', value: 8, tone: 'success' },
+          { id: 's4-home',    label: '/home',         sub: '25 page views',   value: 25, tone: 'accent' },
+        ],
+      },
+    ];
+
+    const cleanLinks = [
+      { from: 's1-login', to: 's2-home',   value: 168, unit: 'page views', note: 'Primary post-auth path' },
+      { from: 's1-login', to: 's2-doc',    value: 9,   unit: 'page views', note: 'Skip home → documents' },
+      { from: 's1-home',  to: 's2-doc',    value: 80,  unit: 'page views', note: 'Home drives document adoption' },
+      { from: 's1-home',  to: 's2-monday', value: 36,  unit: 'page views', note: 'Task management from home' },
+      { from: 's1-home',  to: 's2-send',   value: 30,  unit: 'page views', note: 'Direct send shortcut' },
+      { from: 's1-sso',   to: 's2-home',   value: 35,  unit: 'page views', note: 'SSO → hub' },
+      { from: 's1-doc',   to: 's2-send',   value: 45,  unit: 'page views', note: 'Document list → send' },
+      { from: 's1-aml',   to: 's2-create', value: 54,  unit: 'page views', note: 'AML list → create wizard' },
+      { from: 's2-home',  to: 's3-send',   value: 55,  unit: 'page views', note: 'Hub → document send' },
+      { from: 's2-home',  to: 's3-home',   value: 28,  unit: 'page views', note: 'Remain on hub' },
+      { from: 's2-doc',   to: 's3-send',   value: 158, unit: 'page views', note: 'Strongest product path' },
+      { from: 's2-doc',   to: 's3-aml',    value: 11,  unit: 'page views', note: 'Cross-feature pivot to AML' },
+      { from: 's2-send',  to: 's3-send',   value: 23,  unit: 'page views', note: 'Continue on send page' },
+      { from: 's2-create',to: 's3-create', value: 54,  unit: 'page views', note: 'Continue AML wizard' },
+      { from: 's2-create',to: 's3-aml',    value: 25,  unit: 'page views', note: 'Return to AML list' },
+      { from: 's2-monday',to: 's3-home',   value: 15,  unit: 'page views', note: 'Return to hub' },
+      { from: 's3-send',  to: 's4-docsent',value: 28,  unit: 'active users', note: 'Completed document send (funnel)' },
+      { from: 's3-send',  to: 's4-home',   value: 25,  unit: 'page views', note: 'Leave send without event' },
+      { from: 's3-create',to: 's4-amlsub', value: 8,   unit: 'active users', note: 'AML submitted from wizard' },
+    ];
+
+    const svg = document.getElementById('pathExploreSvg');
+    const tooltip = document.getElementById('pathTooltip');
+    const NS = 'http://www.w3.org/2000/svg';
+
+    const W = 1100;
+    const H = 520;
+    const pad = { top: 48, right: 24, bottom: 24, left: 24 };
+    const colCount = columns.length;
+    const colW = 150;
+    const colGap = (W - pad.left - pad.right - colCount * colW) / (colCount - 1);
+    const nodeW = 118;
+    const minNodeH = 22;
+    const nodeGap = 10;
+
+    const nodeMap = {};
+    columns.forEach((col, ci) => {
+      const x = pad.left + ci * (colW + colGap);
+      const total = col.nodes.reduce((s, n) => s + n.value, 0);
+      const scale = (H - pad.top - pad.bottom - (col.nodes.length - 1) * nodeGap) / total;
+      let y = pad.top;
+      col.nodes.forEach(n => {
+        const h = Math.max(minNodeH, n.value * scale);
+        nodeMap[n.id] = { ...n, x, y, w: nodeW, h, col: ci, cx: x + nodeW / 2 };
+        y += h + nodeGap;
+      });
+    });
+
+    // Track link offsets per node side
+    const outOffset = {};
+    const inOffset = {};
+    Object.keys(nodeMap).forEach(id => { outOffset[id] = 0; inOffset[id] = 0; });
+
+    function linkRibbon(x0, y0, h0, x1, y1, h1) {
+      const mx = (x0 + x1) / 2;
+      return [
+        `M${x0},${y0}`,
+        `C${mx},${y0} ${mx},${y1} ${x1},${y1}`,
+        `L${x1},${y1 + h1}`,
+        `C${mx},${y1 + h1} ${mx},${y0 + h0} ${x0},${y0 + h0}`,
+        'Z',
+      ].join(' ');
+    }
+
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.innerHTML = '';
+
+    // Column guides & titles
+    columns.forEach((col, ci) => {
+      const x = pad.left + ci * (colW + colGap) + nodeW / 2;
+      const title = document.createElementNS(NS, 'text');
+      title.setAttribute('class', 'path-col-title');
+      title.setAttribute('x', x);
+      title.setAttribute('y', 22);
+      title.setAttribute('text-anchor', 'middle');
+      title.textContent = col.title;
+      svg.appendChild(title);
+
+      if (ci > 0) {
+        const line = document.createElementNS(NS, 'line');
+        line.setAttribute('class', 'path-col-line');
+        line.setAttribute('x1', pad.left + ci * (colW + colGap) - colGap / 2);
+        line.setAttribute('y1', pad.top - 8);
+        line.setAttribute('x2', pad.left + ci * (colW + colGap) - colGap / 2);
+        line.setAttribute('y2', H - pad.bottom);
+        svg.appendChild(line);
+      }
+    });
+
+    const linkLayer = document.createElementNS(NS, 'g');
+    const nodeLayer = document.createElementNS(NS, 'g');
+    svg.appendChild(linkLayer);
+    svg.appendChild(nodeLayer);
+
+    const linkEls = [];
+    const nodeEls = {};
+
+    cleanLinks.forEach(link => {
+      const src = nodeMap[link.from];
+      const tgt = nodeMap[link.to];
+      if (!src || !tgt) return;
+
+      const srcTotalOut = cleanLinks.filter(l => l.from === link.from).reduce((s, l) => s + l.value, 0);
+      const tgtTotalIn  = cleanLinks.filter(l => l.to === link.to).reduce((s, l) => s + l.value, 0);
+      const sh = Math.max(4, (link.value / srcTotalOut) * src.h);
+      const th = Math.max(4, (link.value / tgtTotalIn) * tgt.h);
+      const sy = src.y + outOffset[link.from];
+      const ty = tgt.y + inOffset[link.to];
+      outOffset[link.from] += sh;
+      inOffset[link.to] += th;
+
+      const path = document.createElementNS(NS, 'path');
+      const tone = TONES[src.tone] || TONES.accent;
+      path.setAttribute('d', linkRibbon(src.x + src.w, sy, sh, tgt.x, ty, th));
+      path.setAttribute('fill', tone.link);
+      path.setAttribute('class', 'path-link');
+      path.dataset.from = link.from;
+      path.dataset.to = link.to;
+      path.dataset.value = link.value;
+      path.dataset.unit = link.unit;
+      path.dataset.note = link.note;
+      linkLayer.appendChild(path);
+      linkEls.push(path);
+    });
+
+    Object.values(nodeMap).forEach(n => {
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', 'path-node');
+      g.dataset.id = n.id;
+
+      const rect = document.createElementNS(NS, 'rect');
+      const tone = TONES[n.tone];
+      rect.setAttribute('x', n.x);
+      rect.setAttribute('y', n.y);
+      rect.setAttribute('width', n.w);
+      rect.setAttribute('height', n.h);
+      rect.setAttribute('rx', 6);
+      rect.setAttribute('fill', tone.fill);
+      rect.setAttribute('stroke', tone.stroke);
+      rect.setAttribute('fill-opacity', '0.9');
+      g.appendChild(rect);
+
+      const label = document.createElementNS(NS, 'text');
+      label.setAttribute('class', 'path-node-label');
+      label.setAttribute('x', n.x + n.w / 2);
+      label.setAttribute('y', n.y + n.h / 2 + (n.h > 34 ? -5 : 3));
+      label.setAttribute('text-anchor', 'middle');
+      label.textContent = n.label;
+      g.appendChild(label);
+
+      if (n.h > 34) {
+        const sub = document.createElementNS(NS, 'text');
+        sub.setAttribute('class', 'path-node-value');
+        sub.setAttribute('x', n.x + n.w / 2);
+        sub.setAttribute('y', n.y + n.h / 2 + 12);
+        sub.setAttribute('text-anchor', 'middle');
+        sub.textContent = n.sub;
+        g.appendChild(sub);
+      }
+
+      nodeLayer.appendChild(g);
+      nodeEls[n.id] = g;
+    });
+
+    function showTip(html, x, y) {
+      tooltip.innerHTML = html;
+      tooltip.classList.add('visible');
+      const rect = tooltip.getBoundingClientRect();
+      let left = x + 14;
+      let top = y - 10;
+      if (left + rect.width > window.innerWidth - 12) left = x - rect.width - 14;
+      if (top + rect.height > window.innerHeight - 12) top = window.innerHeight - rect.height - 12;
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+    }
+
+    function hideTip() {
+      tooltip.classList.remove('visible');
+    }
+
+    function highlight(id) {
+      linkEls.forEach(p => {
+        const match = p.dataset.from === id || p.dataset.to === id;
+        p.classList.toggle('active', match);
+      });
+      Object.entries(nodeEls).forEach(([nid, g]) => {
+        g.classList.toggle('active', nid === id);
+      });
+    }
+
+    function clearHighlight() {
+      linkEls.forEach(p => p.classList.remove('active'));
+      Object.values(nodeEls).forEach(g => g.classList.remove('active'));
+    }
+
+    linkEls.forEach(path => {
+      const src = nodeMap[path.dataset.from];
+      const tgt = nodeMap[path.dataset.to];
+      const tipHtml =
+        `<strong>${src.label} → ${tgt.label}</strong>` +
+        `${path.dataset.value} ${path.dataset.unit}<br>` +
+        `<em>${path.dataset.note}</em>`;
+      path.addEventListener('mouseenter', e => {
+        highlight(path.dataset.from);
+        highlight(path.dataset.to);
+        showTip(tipHtml, e.clientX, e.clientY);
+      });
+      path.addEventListener('mousemove', e => showTip(tipHtml, e.clientX, e.clientY));
+      path.addEventListener('mouseleave', () => { hideTip(); clearHighlight(); });
+    });
+
+    Object.entries(nodeEls).forEach(([id, g]) => {
+      const n = nodeMap[id];
+      g.style.cursor = 'pointer';
+      g.addEventListener('mouseenter', e => {
+        highlight(id);
+        const inflow = cleanLinks.filter(l => l.to === id);
+        const outflow = cleanLinks.filter(l => l.from === id);
+        const inSummary = inflow.map(l => `${l.value} ${l.unit}`).join(', ') || '0';
+        const outSummary = outflow.map(l => `${l.value} ${l.unit}`).join(', ') || '0';
+        const tipHtml =
+          `<strong>${n.label}</strong>${n.sub}<br>` +
+          `In: ${inSummary}<br>Out: ${outSummary}`;
+        g._tipHtml = tipHtml;
+        showTip(tipHtml, e.clientX, e.clientY);
+      });
+      g.addEventListener('mousemove', e => showTip(g._tipHtml, e.clientX, e.clientY));
+      g.addEventListener('mouseleave', () => { hideTip(); clearHighlight(); });
+    });
+  })();
+
+  Chart.defaults.color = '#8b9cb3';
+  Chart.defaults.borderColor = '#2d3a4f';
+  Chart.defaults.font.family = '"Segoe UI", system-ui, sans-serif';
+
+  new Chart(document.getElementById('eventsChart'), {
+    type: 'bar',
+    data: {
+      labels: ['aml_list_viewed', 'aml_create_started', 'aml_step_done', 'document_sent', 'aml_submitted', 'aml_status_viewed', 'form_start'],
+      datasets: [{
+        label: 'Event count',
+        data: [331, 111, 138, 61, 16, 62, 212],
+        backgroundColor: ['#a78bfa','#a78bfa','#a78bfa','#38bdf8','#a78bfa','#a78bfa','#4f8cff'],
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { color: '#2d3a4f' } }, y: { grid: { display: false } } }
+    }
+  });
+
+  new Chart(document.getElementById('pagesChart'), {
+    type: 'bar',
+    data: {
+      labels: ['/login', '/home', '/document', '/aml', '/sso', '/document/send', '/monday', '/aml/create'],
+      datasets: [{
+        label: 'Screen page views',
+        data: [2206, 669, 515, 396, 228, 228, 116, 131],
+        backgroundColor: '#4f8cff',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { color: '#2d3a4f' } }, y: { grid: { display: false } } }
+    }
+  });
+
+  new Chart(document.getElementById('deviceChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Desktop (105)', 'Mobile (54)', 'Tablet (3)'],
+      datasets: [{
+        data: [105, 54, 3],
+        backgroundColor: ['#4f8cff', '#7c5cff', '#34d399'],
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            afterLabel: (ctx) => {
+              const rates = ['66% engagement', '69% engagement', '69% engagement'];
+              return rates[ctx.dataIndex];
+            }
+          }
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('landingChart'), {
+    type: 'bar',
+    data: {
+      labels: ['/login', '/home', '(not set)', '/sso', '/document', '/aml', '/document/send', '/monday'],
+      datasets: [{
+        label: 'Sessions',
+        data: [331, 117, 130, 75, 65, 35, 23, 27],
+        backgroundColor: '#fb923c',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: '#2d3a4f' } } }
+    }
+  });
+
+  /* Daily events — June 2026 (GA4 eventCount by date) */
+  const juneDailyEvents = [296,384,348,342,414,138,17,290,292,180,615,556,16,20,459,1220,1024,598,451,32,77,179,328,343,237,345,40,43,3100,430];
+  const juneLabels = Array.from({length: 30}, (_, i) => `Jun ${i + 1}`);
+  new Chart(document.getElementById('dailyEventsChart'), {
+    type: 'bar',
+    data: {
+      labels: juneLabels,
+      datasets: [{
+        label: 'Event count',
+        data: juneDailyEvents,
+        backgroundColor: juneDailyEvents.map(v => v >= 1000 ? '#f87171' : v >= 500 ? '#fbbf24' : '#4f8cff'),
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.parsed.y.toLocaleString()} events`,
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 15 } },
+        y: { grid: { color: '#2d3a4f' }, title: { display: true, text: 'Event count', color: '#8b9cb3' } }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

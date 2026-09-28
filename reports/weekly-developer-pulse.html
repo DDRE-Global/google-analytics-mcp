@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Leadership Report — 20–26 Jul 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface-2: #243044;
+      --border: #2d3a4f;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --accent: #4f8cff;
+      --accent-2: #7c5cff;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --aml: #a78bfa;
+      --doc: #38bdf8;
+      --auth: #fb923c;
+      --azure: #38bdf8;
+      --host: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #1a2332 0%, #0f1419 50%, #1a1a3e 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem 2.5rem;
+    }
+
+    .hero-inner { max-width: 1200px; margin: 0 auto; }
+
+    .badge {
+      display: inline-block;
+      background: rgba(79, 140, 255, 0.15);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 760px; }
+
+    .meta {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    .meta strong { color: var(--text); }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    section { margin-bottom: 3rem; }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 650;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.01em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+      max-width: 800px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .kpi-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.35rem;
+    }
+
+    .kpi-value {
+      font-size: 1.85rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .kpi-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+    .kpi-sub.up { color: var(--success); }
+    .kpi-sub.down { color: var(--danger); }
+    .kpi-sub.flat { color: var(--muted); }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .insight {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      padding: 1.25rem;
+    }
+
+    .insight.warning { border-left-color: var(--warning); }
+    .insight.success { border-left-color: var(--success); }
+    .insight.danger { border-left-color: var(--danger); }
+
+    .insight h3 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .insight p { font-size: 0.875rem; color: var(--muted); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot.delivery { background: var(--accent); }
+    .dot.ga { background: var(--aml); }
+    .dot.host { background: var(--host); }
+    .dot.azure { background: var(--azure); }
+    .dot.doc { background: var(--doc); }
+    .dot.auth { background: var(--auth); }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .chart-row { grid-template-columns: 1fr; }
+    }
+
+    .chart-wrap { position: relative; height: 280px; }
+    .chart-wrap.tall { height: 320px; }
+
+    .awaiting {
+      color: var(--muted);
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tr:hover td { background: rgba(79, 140, 255, 0.05); }
+
+    .status-pill {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .status-pill.ok { color: var(--success); border-color: rgba(52, 211, 153, 0.35); }
+    .status-pill.warn { color: var(--warning); border-color: rgba(251, 191, 36, 0.35); }
+    .status-pill.bad { color: var(--danger); border-color: rgba(248, 113, 113, 0.35); }
+
+    .funnel-steps {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .funnel-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      position: relative;
+      min-width: 0;
+    }
+
+    .funnel-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -0.35rem;
+      top: 42%;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1;
+      z-index: 1;
+    }
+
+    .funnel-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.3;
+      min-height: 2.4em;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .funnel-bar-wrap {
+      background: var(--surface-2);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 72px;
+      height: 140px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .funnel-bar {
+      width: 100%;
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fff;
+      min-height: 28px;
+      height: 0%;
+      background: linear-gradient(180deg, var(--aml), #7c3aed);
+    }
+
+    .funnel-bar.doc { background: linear-gradient(180deg, var(--doc), #0284c7); }
+
+    .funnel-count {
+      font-size: 0.8rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .rate { font-weight: 600; color: var(--muted); font-size: 0.85rem; }
+    .rate.good { color: var(--success); }
+    .rate.mid { color: var(--warning); }
+    .rate.bad { color: var(--danger); }
+
+    @media (max-width: 700px) {
+      .funnel-steps {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .funnel-step:not(:last-child)::after {
+        content: "↓";
+        right: auto;
+        top: auto;
+        bottom: -0.65rem;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .funnel-bar-wrap {
+        max-width: none;
+        height: 28px;
+        align-items: stretch;
+      }
+
+      .funnel-bar {
+        height: 100% !important;
+        width: var(--funnel-pct, 0%);
+        min-width: 40px;
+        min-height: 0;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 0.5rem;
+        background: linear-gradient(90deg, var(--aml), #7c3aed);
+      }
+
+      .funnel-bar.doc { background: linear-gradient(90deg, var(--doc), #0284c7); }
+
+      .funnel-label { min-height: 0; }
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    .watch-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .watch-list li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--warning);
+      border-radius: 0 12px 12px 0;
+      padding: 1rem 1.25rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .watch-list li strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+      font-size: 0.95rem;
+    }
+
+    .est-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .hero { background: #f5f5f5; }
+      .kpi, .card, .insight { border: 1px solid #ccc; background: #fff; }
+    }
+  </style>
+</head>
+<body>
+
+<!--
+  FILL MARKERS
+  Replace {{...}} tokens and content inside elements with data-fill attributes.
+  Chart data goes in the <script id="report-data"> JSON block at the bottom.
+  Save filled output as: reports/weekly-leadership-report-YYYY-MM-DD.html
+-->
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="badge">Weekly Developer Pulse Report</span>
+    <h1>Delivery &amp; Usage Summary</h1>
+    <p class="subtitle" data-fill="overall_posture">Summary of the week's delivery and usage across Noga advisor and infrastructure.</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. Overview -->
+  <section id="executive-snapshot">
+    <h2>Overview</h2>
+    <p class="section-desc">Headline metrics for the week across delivery, Noga advisor usage, and infrastructure.</p>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">Issues Closed</div>
+        <div class="kpi-value" data-fill="kpi_issues_closed">17</div>
+        <div class="kpi-sub down" data-fill="kpi_issues_closed_delta">vs prior week: −26% (23)</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">PRs Merged</div>
+        <div class="kpi-value" data-fill="kpi_prs_merged">17</div>
+        <div class="kpi-sub up" data-fill="kpi_prs_merged_delta">vs prior week: +21% (14)</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Open Blockers</div>
+        <div class="kpi-value" data-fill="kpi_open_blockers">19</div>
+        <div class="kpi-sub flat" data-fill="kpi_open_blockers_note">Highest/High or flagged</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Prod Active Users</div>
+        <div class="kpi-value" data-fill="kpi_active_users">53</div>
+        <div class="kpi-sub down" data-fill="kpi_active_users_delta">noga.global · vs prior: −20% (66)</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Docs Sent</div>
+        <div class="kpi-value" data-fill="kpi_docs_sent">5</div>
+        <div class="kpi-sub flat" data-fill="kpi_docs_sent_note">users with document_sent</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">AML Submitted</div>
+        <div class="kpi-value" data-fill="kpi_aml_submitted">8</div>
+        <div class="kpi-sub flat" data-fill="kpi_aml_submitted_note">users with aml_request_submitted</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">VPS Online</div>
+        <div class="kpi-value" data-fill="kpi_apps_online">2/2</div>
+        <div class="kpi-sub up" data-fill="kpi_apps_online_note">edge + data running</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Azure Est. Cost</div>
+        <div class="kpi-value" data-fill="kpi_azure_cost">£17</div>
+        <div class="kpi-sub flat" data-fill="kpi_azure_cost_note">actual billed · 20–26 Jul</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Delivery -->
+  <section id="delivery">
+    <h2>Delivery</h2>
+    <p class="section-desc" data-fill="delivery_summary">SCRUM closed 17 issues (down from 23 prior week) while GitHub merged 17 PRs across cms and web (up from 14). Releases shipped on web (v0.0.10, v0.0.11). Migration and scraper work landed; 19 Highest/High items remain open.</p>
+
+    <div class="insight-grid">
+      <div class="insight success">
+        <h3>Ready for Release</h3>
+        <p data-fill="delivery_shipped">Closed: Memo of Sale stories, unlimited listing owners on documents, Rex ID on Monday AML boards, LonRes/Rightmove scraper job, Elliot DB export. Web releases v0.0.10 and v0.0.11; support issues now route to Jira.</p>
+      </div>
+      <div class="insight warning">
+        <h3>In flight / health</h3>
+        <p data-fill="delivery_health">79 open SCRUM issues updated in the last 14 days. In flight: lead processing flow, memorandum of sale, Rex lead migration, and property/listing backfill. Velocity solid on PRs despite fewer Jira closes than prior week.</p>
+      </div>
+      <div class="insight danger">
+        <h3>Blockers</h3>
+        <p data-fill="delivery_blockers">19 Highest/High open: lead processing (SCRUM-428/426), lead email notifications, MoS send, Rex leads migration, AML compliance email HTTP 413 (SCRUM-399), and escalation framework.</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="dot delivery"></span> Jira</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Summary</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody data-fill="jira_rows"><tr><td>SCRUM-407</td><td>Monday: Rex ID as item name (Onboarding + AML)</td><td>Done</td></tr>
+<tr><td>SCRUM-415</td><td>Documents: no limit for listing owners</td><td>Done</td></tr>
+<tr><td>SCRUM-395</td><td>Expose Elliot listing/property DB as a tool</td><td>Done</td></tr>
+<tr><td>SCRUM-405</td><td>LonRes + Rightmove scraper (Azure job)</td><td>Done</td></tr>
+<tr><td>SCRUM-428</td><td>Desktop: Lead Processing Flow</td><td>In Progress</td></tr>
+<tr><td>SCRUM-399</td><td>AML compliance email fails HTTP 413</td><td>To Do</td></tr>
+<tr><td>SCRUM-426</td><td>Leads: Book Appointment → New Appointment</td><td>To Do</td></tr></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3><span class="dot delivery"></span> GitHub</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Repo</th>
+              <th>Merged / released</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody data-fill="github_rows"><tr><td>cms</td><td>8 PRs merged</td><td>AML waiting-on, listing owners, Monday advisor labels, lead audit</td></tr>
+<tr><td>web</td><td>9 PRs + v0.0.10/v0.0.11</td><td>Jira support, appointments, Rex BFF hotfix, Playwright</td></tr>
+<tr><td>external-dataset-mcp</td><td>0 PRs</td><td>No merges this week</td></tr>
+<tr><td>google-analytics-mcp</td><td>0 PRs</td><td>No merges this week</td></tr>
+<tr><td>mcp</td><td>0 PRs</td><td>No merges this week</td></tr>
+<tr><td>migration</td><td>0 PRs</td><td>No merges this week</td></tr></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Noga advisor usage (GA) -->
+  <section id="noga-usage">
+    <h2>Noga Production Usage</h2>
+    <p class="section-desc" data-fill="ga_summary">Production (<code>noga.global</code>): 53 active users (−20% vs 66 prior) and 216 sessions. Docs sent: 5 users; AML submitted: 8.</p>
+
+    <div class="chart-row">
+      <div class="card">
+        <h3><span class="dot ga"></span> Daily event volume</h3>
+        <div class="chart-wrap">
+          <canvas id="chart-ga-daily-events" aria-label="Daily GA4 event count"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="dot ga"></span> Engagement</h3>
+        <div class="chart-wrap">
+          <canvas id="chart-ga-engagement" aria-label="Sessions and active users"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top: 1.25rem;">
+      <div class="card">
+        <h3><span class="dot doc"></span> Document funnel</h3>
+        <div class="funnel-steps" data-fill="funnel_document">
+          <div class="funnel-step">
+            <span class="funnel-label">Document list</span>
+            <div class="funnel-bar-wrap"><div class="funnel-bar doc" style="height:100%; --funnel-pct:100%">24u</div></div>
+            <span class="funnel-count">24 users</span>
+            <span class="rate good">100%</span>
+          </div>
+          <div class="funnel-step">
+            <span class="funnel-label">Send flow</span>
+            <div class="funnel-bar-wrap"><div class="funnel-bar doc" style="height:75%; --funnel-pct:75%">18u</div></div>
+            <span class="funnel-count">18 users</span>
+            <span class="rate mid">75%</span>
+          </div>
+          <div class="funnel-step">
+            <span class="funnel-label">document_sent</span>
+            <div class="funnel-bar-wrap"><div class="funnel-bar doc" style="height:21%; --funnel-pct:21%">5u</div></div>
+            <span class="funnel-count">5 users</span>
+            <span class="rate bad">21%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="dot ga"></span> AML funnel</h3>
+        <div class="funnel-steps" data-fill="funnel_aml">
+          <div class="funnel-step">
+            <span class="funnel-label">AML list</span>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="height:100%; --funnel-pct:100%">21u</div></div>
+            <span class="funnel-count">21 users</span>
+            <span class="rate good">100%</span>
+          </div>
+          <div class="funnel-step">
+            <span class="funnel-label">Create started</span>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="height:67%; --funnel-pct:67%">14u</div></div>
+            <span class="funnel-count">14 users</span>
+            <span class="rate mid">67%</span>
+          </div>
+          <div class="funnel-step">
+            <span class="funnel-label">Submitted</span>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="height:38%; --funnel-pct:38%">8u</div></div>
+            <span class="funnel-count">8 users</span>
+            <span class="rate mid">38%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 1.25rem;">
+      <h3><span class="dot ga"></span> Top pages &amp; product events</h3>
+      <div class="two-col">
+        <table>
+          <thead>
+            <tr>
+              <th>Page</th>
+              <th>Views</th>
+              <th>Users</th>
+            </tr>
+          </thead>
+          <tbody data-fill="ga_top_pages"><tr><td>/home</td><td>155</td><td>41</td></tr>
+<tr><td>/login</td><td>136</td><td>45</td></tr>
+<tr><td>/document</td><td>84</td><td>24</td></tr>
+<tr><td>/aml</td><td>79</td><td>21</td></tr>
+<tr><td>/document/send</td><td>57</td><td>18</td></tr>
+<tr><td>/monday</td><td>27</td><td>9</td></tr>
+<tr><td>/aml/create</td><td>24</td><td>14</td></tr>
+<tr><td>/aml/du5k8cmdoor2yvegqw0sod8l</td><td>5</td><td>2</td></tr></tbody>
+        </table>
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Count</th>
+              <th>Users</th>
+            </tr>
+          </thead>
+          <tbody data-fill="ga_top_events"><tr><td>aml_list_viewed</td><td>72</td><td>21</td></tr>
+<tr><td>aml_create_step_completed</td><td>52</td><td>14</td></tr>
+<tr><td>aml_create_started</td><td>24</td><td>14</td></tr>
+<tr><td>aml_status_viewed</td><td>17</td><td>10</td></tr>
+<tr><td>aml_request_submitted</td><td>9</td><td>8</td></tr>
+<tr><td>document_sent</td><td>8</td><td>5</td></tr>
+<tr><td>form_start</td><td>49</td><td>27</td></tr>
+<tr><td>session_start</td><td>216</td><td>53</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="insight-grid" style="margin-top: 1.25rem;">
+      <div class="insight">
+        <h3>Insight 1</h3>
+        <p data-fill="ga_insight_1">Weekly active advisors on production: 53 (−20% vs 66 prior). That sits in line with our known base (~59 Strapi users / 73 agents) — adoption is real but still early, and WoW softness is worth watching.</p>
+      </div>
+      <div class="insight">
+        <h3>Insight 2</h3>
+        <p data-fill="ga_insight_2">Usage concentrates on home, login, documents, and AML. Monday reached only 9 users. Login drew 45 of 53 actives (136 views) — worth checking whether session expiry or re-auth friction is inflating that load.</p>
+      </div>
+      <div class="insight">
+        <h3>Insight 3</h3>
+        <p data-fill="ga_insight_3">Biggest conversion leak is document send: 18 entered the flow, only 5 completed (28%). AML holds better once started (14 create → 8 submit, 57%), but a third of list viewers never create. Priority tests: send-step friction (recipients, validation, MoS gaps) and AML list→create / mid-wizard drop-off.</p>
+      </div>
+    </div>
+  </section>
+
+<!-- 4. Hostinger VPS fleet (ops proxy) -->
+  <section id="hostinger">
+    <h2>Hostinger VPS Fleet</h2>
+    <p class="section-desc" data-fill="hostinger_summary">Both KVM 2 VPS are running. Edge (Traefik) fronts six *.ddre.ai apps at low CPU (~2% avg) but ~61% RAM. Data VPS hosts MariaDB property corpora for external-dataset MCP (SSH only; no public HTTP). Weekly Hostinger backups succeeded on both.</p>
+
+    <div class="card">
+      <h3><span class="dot host"></span> Fleet inventory</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Host / IP</th>
+            <th>Plan</th>
+            <th>State</th>
+            <th>What it runs</th>
+          </tr>
+        </thead>
+        <tbody data-fill="hostinger_vps_rows">
+          <tr>
+            <td>Edge / apps</td>
+            <td>srv1465785 · 72.61.123.84</td>
+            <td>KVM 2 · Docker + Traefik</td>
+            <td><span class="status-pill ok">Running</span></td>
+            <td>Traefik (Up 6 weeks); TLS + host routing for DDRE app domains</td>
+          </tr>
+          <tr>
+            <td>Data / MariaDB</td>
+            <td>srv1572697 · 72.61.145.175</td>
+            <td>KVM 2 · Ubuntu 24.04</td>
+            <td><span class="status-pill ok">Running</span></td>
+            <td>MariaDB u819775029_rmdb + scrapers; Azure MCP SSH tunnel target</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="dot host"></span> Domains on edge VPS</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Domain</th>
+              <th>DNS →</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody data-fill="hostinger_domains">
+            <tr><td>hub.ddre.ai</td><td>72.61.123.84</td><td>ddre-hub</td></tr>
+            <tr><td>buyer.ddre.ai</td><td>72.61.123.84</td><td>ddre-buyside</td></tr>
+            <tr><td>pma.ddre.ai</td><td>72.61.123.84</td><td>property-market-analyzer</td></tr>
+            <tr><td>searches.ddre.ai</td><td>72.61.123.84</td><td>searches-ddre-ai</td></tr>
+            <tr><td>sdlt.ddre.ai</td><td>72.61.123.84</td><td>stamp duty calculator</td></tr>
+            <tr><td>tenant.ddre.ai</td><td>72.61.123.84</td><td>ddre-tenant-rep</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3><span class="dot host"></span> Load snapshot (week)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>VPS</th>
+              <th>CPU avg / max</th>
+              <th>RAM</th>
+              <th>Disk</th>
+            </tr>
+          </thead>
+          <tbody data-fill="hostinger_load_rows">
+            <tr>
+              <td>Edge 1465785</td>
+              <td>2.1% / 16.2%</td>
+              <td>59% avg</td>
+              <td>59% used</td>
+            </tr>
+            <tr>
+              <td>Data 1572697</td>
+              <td>1.6% / 5.5%</td>
+              <td>18% avg</td>
+              <td>9% used</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="est-note" data-fill="hostinger_load_note">Hostinger metrics API · KVM 2 = 2 vCPU / 8 GB / 100 GB · 20–26 Jul 2026</p>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="card">
+        <h3><span class="dot host"></span> Daily CPU % (both VPS)</h3>
+        <div class="chart-wrap">
+          <canvas id="chart-hostinger-vps" aria-label="Hostinger VPS CPU both machines"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="dot host"></span> Daily memory % (both VPS)</h3>
+        <div class="chart-wrap">
+          <canvas id="chart-hostinger-vps-mem" aria-label="Hostinger VPS memory both machines"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top: 1.25rem;">
+      <div class="card">
+        <h3><span class="dot host"></span> Docker / projects (edge)</h3>
+        <p class="section-desc" style="margin-bottom: 1rem;" data-fill="hostinger_docker_summary">Docker Manager shows Traefik running; several OpenClaw/crm-webhook projects stopped. App containers for hub/buyer may be outside Docker Manager (Traefik file provider). Data VPS has no Docker Manager.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>State</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody data-fill="hostinger_docker_rows">
+            <tr><td>traefik</td><td><span class="status-pill ok">Running</span></td><td>Up 6 weeks · Let's Encrypt · Docker + file providers</td></tr>
+            <tr><td>crm-webhook</td><td><span class="status-pill warn">Stopped</span></td><td>Exited ~6 weeks ago</td></tr>
+            <tr><td>openclaw-*</td><td><span class="status-pill warn">Stopped</span></td><td>5 Hostinger OpenClaw stacks exited</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3><span class="dot host"></span> Backups &amp; platform actions</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>VPS</th>
+              <th>Action</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody data-fill="hostinger_deploys">
+            <tr><td>25 Jul</td><td>Data 1572697</td><td>backup_create</td><td><span class="status-pill ok">Success</span></td></tr>
+            <tr><td>24 Jul</td><td>Edge 1465785</td><td>backup_create</td><td><span class="status-pill ok">Success</span></td></tr>
+            <tr><td>18 Jul</td><td>Data 1572697</td><td>backup_create</td><td><span class="status-pill ok">Success</span></td></tr>
+            <tr><td>17 Jul</td><td>Edge 1465785</td><td>backup_create</td><td><span class="status-pill ok">Success</span></td></tr>
+          </tbody>
+        </table>
+        <p class="est-note">Platform backups — not app CI deploys. App releases are in GitHub (web/cms).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Azure -->
+  <section id="azure">
+    <h2>Azure Footprint</h2>
+    <p class="section-desc" data-fill="azure_summary">Resource groups, usage signals, and estimated cost. Actual Cost Management spend for Noga-related groups (20–26 Jul) was £17.17 GBP. Config names noga-mcp / noga-migration map to live groups nogamcp-rg (includes migration jobs) and noga-data-pipeline-rg; external-dataset-mcp-rg is live. No separate noga-migration resource group.</p>
+
+    <div class="card">
+      <h3><span class="dot azure"></span> Resource groups</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Resource group</th>
+            <th>Resources</th>
+            <th>Usage signal</th>
+            <th>Cost (GBP)</th>
+          </tr>
+        </thead>
+        <tbody data-fill="azure_rg_rows">
+          <tr>
+            <td>nogamcp-rg</td>
+            <td>21 (ACA, ACR, Log Analytics, migration jobs, storage)</td>
+            <td>Container App noga-mcp + migration job suite</td>
+            <td>£14.25</td>
+          </tr>
+          <tr>
+            <td>noga-data-pipeline-rg</td>
+            <td>8 (ingest job, ACA env, KV, storage, AI)</td>
+            <td>Data pipeline ingest job</td>
+            <td>£0.86</td>
+          </tr>
+          <tr>
+            <td>external-dataset-mcp-rg</td>
+            <td>4 (Container App + env + logs + MI)</td>
+            <td>external-dataset-mcp Container App</td>
+            <td>£2.06</td>
+          </tr>
+          <tr>
+            <td colspan="3"><strong>Total (20–26 Jul)</strong></td>
+            <td><strong>£17.17</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="est-note" data-fill="azure_cost_disclaimer">Cost figures are actual billed spend from Azure Cost Management (GBP) for 20–26 Jul 2026, not retail estimates. Config group names mapped to live RGs: nogamcp-rg, noga-data-pipeline-rg, external-dataset-mcp-rg.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot azure"></span> Actual cost by resource group (GBP)</h3>
+      <div class="chart-wrap tall">
+        <canvas id="chart-azure-cost" aria-label="Actual Azure cost by resource group in GBP"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Watchouts -->
+  <section id="watchouts">
+    <h2>Watchouts &amp; Asks</h2>
+    <p class="section-desc">At most three items needing developer attention this week.</p>
+    <ul class="watch-list" data-fill="watchouts">
+      <li>
+        <strong>GA polluted by localhost / Playwright</strong>
+        Unfiltered activeUsers (872) is not advisor headcount — 814 were localhost. Gate GA to production hosts and always filter reports to noga.global.
+      </li>
+      <li>
+        <strong>Open critical delivery backlog</strong>
+        19 Highest/High SCRUM items remain open (leads processing, MoS, Rex migrations, AML email 413). Needs prioritisation so shipping does not stall behind WIP.
+      </li>
+      <li>
+        <strong>Edge VPS memory headroom</strong>
+        Traefik edge VPS averages ~61% RAM (max ~84%) with only ~2% CPU — watch for memory pressure before adding more apps on 1465785.
+      </li>
+
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  Sources: Jira · GitHub · Strapi · Google Analytics (Noga) · Hostinger · Azure ·
+  Generated for Basecamp · <span data-fill="footer_period">20–26 Jul 2026</span>
+</footer>
+
+<!--
+  Agent: replace this JSON with real series, then charts render automatically.
+  Keep keys stable; use empty arrays if a chart has no data.
+-->
+<script id="report-data" type="application/json">
+{
+  "gaDailyEvents": {
+    "labels": [
+      "19 Jul",
+      "20 Jul",
+      "21 Jul",
+      "22 Jul",
+      "23 Jul",
+      "24 Jul",
+      "25 Jul"
+    ],
+    "values": [
+      53,
+      539,
+      328,
+      504,
+      240,
+      152,
+      33
+    ]
+  },
+  "gaEngagement": {
+    "labels": [
+      "19 Jul",
+      "20 Jul",
+      "21 Jul",
+      "22 Jul",
+      "23 Jul",
+      "24 Jul",
+      "25 Jul"
+    ],
+    "sessions": [
+      3,
+      60,
+      34,
+      56,
+      31,
+      25,
+      7
+    ],
+    "activeUsers": [
+      2,
+      32,
+      17,
+      23,
+      18,
+      15,
+      3
+    ]
+  },
+  "hostingerVps": {
+    "labels": [
+      "20 Jul",
+      "21 Jul",
+      "22 Jul",
+      "23 Jul",
+      "24 Jul",
+      "25 Jul",
+      "26 Jul"
+    ],
+    "edgeCpu": [
+      1.39,
+      1.29,
+      2.27,
+      1.92,
+      2.97,
+      2.73,
+      1.83
+    ],
+    "dataCpu": [
+      1.45,
+      1.46,
+      1.59,
+      1.44,
+      1.77,
+      1.63,
+      1.59
+    ],
+    "edgeMemory": [
+      56.49,
+      57.68,
+      59.94,
+      59.81,
+      60.24,
+      58.07,
+      58.71
+    ],
+    "dataMemory": [
+      17.94,
+      18.65,
+      18.32,
+      18.27,
+      18.6,
+      18.66,
+      18.05
+    ],
+    "cpu": [],
+    "memory": []
+  },
+  "azureCost": {
+    "labels": [
+      "nogamcp-rg",
+      "noga-data-pipeline-rg",
+      "external-dataset-mcp-rg"
+    ],
+    "values": [
+      14.25,
+      0.86,
+      2.06
+    ]
+  }
+}
+</script>
+
+<script>
+(function () {
+  const raw = document.getElementById('report-data');
+  if (!raw || typeof Chart === 'undefined') return;
+
+  let data;
+  try {
+    data = JSON.parse(raw.textContent);
+  } catch (e) {
+    console.warn('report-data JSON parse failed', e);
+    return;
+  }
+
+  const grid = 'rgba(45, 58, 79, 0.6)';
+  const tick = '#8b9cb3';
+
+  const baseOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: { color: tick, boxWidth: 12, font: { size: 11 } }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: tick, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+        grid: { color: grid }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: { color: tick },
+        grid: { color: grid }
+      }
+    }
+  };
+
+  function hasSeries(arr) {
+    return Array.isArray(arr) && arr.length > 0;
+  }
+
+  const gaDaily = data.gaDailyEvents || {};
+  if (hasSeries(gaDaily.labels) && hasSeries(gaDaily.values)) {
+    new Chart(document.getElementById('chart-ga-daily-events'), {
+      type: 'bar',
+      data: {
+        labels: gaDaily.labels,
+        datasets: [{
+          label: 'Event count',
+          data: gaDaily.values,
+          backgroundColor: 'rgba(167, 139, 250, 0.55)',
+          borderColor: '#a78bfa',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: baseOptions
+    });
+  }
+
+  const gaEng = data.gaEngagement || {};
+  if (hasSeries(gaEng.labels)) {
+    new Chart(document.getElementById('chart-ga-engagement'), {
+      type: 'line',
+      data: {
+        labels: gaEng.labels,
+        datasets: [
+          {
+            label: 'Sessions',
+            data: gaEng.sessions || [],
+            borderColor: '#4f8cff',
+            backgroundColor: 'rgba(79, 140, 255, 0.15)',
+            tension: 0.3,
+            fill: true
+          },
+          {
+            label: 'Active users',
+            data: gaEng.activeUsers || [],
+            borderColor: '#34d399',
+            backgroundColor: 'transparent',
+            tension: 0.3
+          }
+        ]
+      },
+      options: baseOptions
+    });
+  }
+
+  const vps = data.hostingerVps || {};
+  const vpsScale = {
+    ...baseOptions,
+    scales: {
+      ...baseOptions.scales,
+      y: {
+        ...baseOptions.scales.y,
+        max: 100
+      }
+    }
+  };
+
+  if (hasSeries(vps.labels) && (hasSeries(vps.edgeCpu) || hasSeries(vps.dataCpu) || hasSeries(vps.cpu))) {
+    const cpuDatasets = [];
+    if (hasSeries(vps.edgeCpu)) {
+      cpuDatasets.push({
+        label: 'Edge CPU % (1465785)',
+        data: vps.edgeCpu,
+        borderColor: '#34d399',
+        tension: 0.3,
+        fill: false
+      });
+    }
+    if (hasSeries(vps.dataCpu)) {
+      cpuDatasets.push({
+        label: 'Data CPU % (1572697)',
+        data: vps.dataCpu,
+        borderColor: '#fbbf24',
+        tension: 0.3,
+        fill: false
+      });
+    }
+    if (!cpuDatasets.length && hasSeries(vps.cpu)) {
+      cpuDatasets.push({
+        label: 'CPU %',
+        data: vps.cpu,
+        borderColor: '#34d399',
+        tension: 0.3,
+        fill: false
+      });
+    }
+    new Chart(document.getElementById('chart-hostinger-vps'), {
+      type: 'line',
+      data: { labels: vps.labels, datasets: cpuDatasets },
+      options: vpsScale
+    });
+  }
+
+  const memEl = document.getElementById('chart-hostinger-vps-mem');
+  if (memEl && hasSeries(vps.labels) && (hasSeries(vps.edgeMemory) || hasSeries(vps.dataMemory) || hasSeries(vps.memory))) {
+    const memDatasets = [];
+    if (hasSeries(vps.edgeMemory)) {
+      memDatasets.push({
+        label: 'Edge RAM % (1465785)',
+        data: vps.edgeMemory,
+        borderColor: '#38bdf8',
+        tension: 0.3,
+        fill: false
+      });
+    }
+    if (hasSeries(vps.dataMemory)) {
+      memDatasets.push({
+        label: 'Data RAM % (1572697)',
+        data: vps.dataMemory,
+        borderColor: '#a78bfa',
+        tension: 0.3,
+        fill: false
+      });
+    }
+    if (!memDatasets.length && hasSeries(vps.memory)) {
+      memDatasets.push({
+        label: 'Memory %',
+        data: vps.memory,
+        borderColor: '#38bdf8',
+        tension: 0.3,
+        fill: false
+      });
+    }
+    new Chart(memEl, {
+      type: 'line',
+      data: { labels: vps.labels, datasets: memDatasets },
+      options: vpsScale
+    });
+  }
+
+  const az = data.azureCost || {};
+  if (hasSeries(az.labels) && hasSeries(az.values)) {
+    const gbp = (v) => '£' + Number(v).toLocaleString('en-GB', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    const palette = [
+      { bg: 'rgba(56, 189, 248, 0.65)', border: '#38bdf8' },
+      { bg: 'rgba(79, 140, 255, 0.55)', border: '#4f8cff' },
+      { bg: 'rgba(167, 139, 250, 0.55)', border: '#a78bfa' }
+    ];
+    new Chart(document.getElementById('chart-azure-cost'), {
+      type: 'bar',
+      data: {
+        labels: az.labels,
+        datasets: [{
+          label: 'Cost (GBP)',
+          data: az.values,
+          backgroundColor: az.values.map((_, i) => palette[i % palette.length].bg),
+          borderColor: az.values.map((_, i) => palette[i % palette.length].border),
+          borderWidth: 1,
+          borderRadius: 4,
+          barPercentage: 0.7,
+          categoryPercentage: 0.8
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { right: 56 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => gbp(ctx.parsed.x)
+            }
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            suggestedMax: Math.max(...az.values) * 1.2,
+            ticks: {
+              color: tick,
+              callback: (v) => gbp(v)
+            },
+            grid: { color: grid },
+            title: {
+              display: true,
+              text: 'GBP billed',
+              color: tick,
+              font: { size: 11 }
+            }
+          },
+          y: {
+            ticks: { color: tick, font: { size: 12 } },
+            grid: { display: false }
+          }
+        }
+      },
+      plugins: [{
+        id: 'azureBarLabels',
+        afterDatasetsDraw(chart) {
+          const { ctx } = chart;
+          const meta = chart.getDatasetMeta(0);
+          ctx.save();
+          ctx.fillStyle = '#e8edf4';
+          ctx.font = '600 12px "Segoe UI", system-ui, sans-serif';
+          ctx.textBaseline = 'middle';
+          meta.data.forEach((bar, i) => {
+            const val = chart.data.datasets[0].data[i];
+            const label = gbp(val);
+            const x = bar.x + 8;
+            const chartRight = chart.chartArea.right;
+            if (x + ctx.measureText(label).width > chartRight) {
+              ctx.textAlign = 'right';
+              ctx.fillText(label, bar.x - 8, bar.y);
+            } else {
+              ctx.textAlign = 'left';
+              ctx.fillText(label, x, bar.y);
+            }
+          });
+          ctx.restore();
+        }
+      }]
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noga Web — Feature &amp; Product Health Report (28 days to 2026-09-27)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419; --surface: #1a2332; --surface-2: #243044; --border: #2d3a4f;
+      --text: #e8edf4; --muted: #8b9cb3; --accent: #4f8cff; --accent-2: #7c5cff;
+      --success: #34d399; --warning: #fbbf24; --danger: #f87171;
+      --aml: #a78bfa; --doc: #38bdf8; --auth: #fb923c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 15px; }
+    .hero { background: linear-gradient(135deg, #1a2332 0%, #0f1419 50%, #1a1a3e 100%); border-bottom: 1px solid var(--border); padding: 3rem 2rem 2.5rem; }
+    .hero-inner { max-width: 1200px; margin: 0 auto; }
+    .badge { display: inline-block; background: rgba(52,211,153,.15); color: var(--success); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: .35rem .75rem; border-radius: 999px; margin-bottom: 1rem; }
+    h1 { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: .5rem; }
+    .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 880px; }
+    .meta { margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: .875rem; color: var(--muted); }
+    .meta strong { color: var(--text); }
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.35rem; font-weight: 650; margin-bottom: .35rem; }
+    h3 { font-size: 1.05rem; font-weight: 650; margin-bottom: .6rem; }
+    .section-desc { color: var(--muted); font-size: .9rem; margin-bottom: 1.25rem; max-width: 880px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+    .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; }
+    .kpi .label { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+    .kpi .value { font-size: 1.6rem; font-weight: 700; margin: .1rem 0; }
+    .kpi .sub { font-size: .78rem; color: var(--muted); }
+    .up { color: var(--success); } .down { color: var(--danger); } .warn { color: var(--warning); } .flat { color: var(--muted); }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th { text-align: left; color: var(--muted); font-size: .73rem; text-transform: uppercase; letter-spacing: .05em; padding: .45rem .7rem; border-bottom: 1px solid var(--border); }
+    td { padding: .45rem .7rem; border-bottom: 1px solid var(--surface-2); }
+    tr:last-child td { border-bottom: none; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .note { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.3); border-radius: 10px; padding: .9rem 1.1rem; font-size: .88rem; color: #fde68a; margin-bottom: 1.25rem; }
+    .alert { background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.35); border-radius: 10px; padding: .9rem 1.1rem; font-size: .88rem; color: #fca5a5; margin-bottom: 1.25rem; }
+    .obs li { margin-bottom: .55rem; margin-left: 1.2rem; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 600; padding: .1rem .55rem; border-radius: 999px; }
+    .pill.ok { background: rgba(52,211,153,.15); color: var(--success); }
+    .pill.warn { background: rgba(251,191,36,.15); color: var(--warning); }
+    .pill.bad { background: rgba(248,113,113,.15); color: var(--danger); }
+    .pill.off { background: rgba(139,156,179,.15); color: var(--muted); }
+    footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 2rem 0 3rem; }
+    .chart-box { position: relative; height: 300px; }
+    .chart-box.tall { height: 340px; }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-inner">
+      <span class="badge">Prod only · noga.global · public /moneypenny excluded · 2026-08-31 → 2026-09-27</span>
+      <h1>Noga Web — Feature &amp; Product Health Report</h1>
+      <p class="subtitle">Feature-by-feature usage and instrumentation audit for <strong>DDRE-Global/web</strong> (GA4 property Noga, 535285702). Feature list and custom events derived from the repo: <code>AGENTS.md</code> → Serena <code>mem:core</code> feature map + <code>src/lib/ga.ts</code> instrumentation. 28-day window, production host only.</p>
+      <div class="meta">
+        <span>Generated <strong>2026-09-28</strong></span>
+        <span>Baseline: <strong>101 active users</strong> (prod app) · 705 sessions · 46 new</span>
+        <span>Instrumentation source: <strong>src/lib/ga.ts + hooks</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div class="note">
+      <strong>Scope:</strong> every query filtered <code>hostName = noga.global</code> (exact) AND <code>pagePath ≠ /moneypenny</code> (public page).
+      Feature-level user counts are per-feature <em>distinct users on that feature's top page</em>; a user active on several features is counted in each.
+    </div>
+
+    <!-- ============ AML ============ -->
+    <section id="aml">
+      <h2>1 · AML Compliance <span class="pill ok">fully instrumented — 8 events</span></h2>
+      <p class="section-desc">The best-instrumented feature (list_viewed → create_started → step_completed → submitted → status_viewed, plus search and metric-filter events). 28 days, production.</p>
+
+      <div class="alert"><strong>⚠ Key finding: only 1 AML request is fully completed.</strong>
+        Of 55 submissions (22 users), status views show <strong>in_progress: 40 views / 15 users</strong>, no documents: 9 / 5, not_started: 7 / 5, and <strong>aml_completed: 1 view / 1 user</strong>.
+        Most volume is stuck in "waiting" — primarily <strong>compliance_team</strong> (27 views / 14 users) and <strong>advisor</strong> (20 / 9).</p>
+
+      <div class="kpi-grid" style="margin-bottom:1.25rem">
+        <div class="kpi"><div class="label">List viewed</div><div class="value">44</div><div class="sub">users · 310 events</div></div>
+        <div class="kpi"><div class="label">Create started</div><div class="value">35</div><div class="sub">users · 104 events · all "direct" source</div></div>
+        <div class="kpi"><div class="label">Steps completed</div><div class="value">31</div><div class="sub">users · 229 events · avg step 1.81</div></div>
+        <div class="kpi"><div class="label">Submitted</div><div class="value">22</div><div class="sub">users · 55 events · 0 drafts (all is_draft=false)</div></div>
+        <div class="kpi"><div class="label">Status viewed</div><div class="value">18</div><div class="sub">users · 57 events</div></div>
+        <div class="kpi"><div class="label">Fully completed</div><div class="value warn">1</div><div class="sub">user · aml_completed status</div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="card"><div class="chart-box tall"><canvas id="amlFunnel"></canvas></div></div>
+        <div class="card">
+          <h3>Submissions by type (variant)</h3>
+          <table>
+            <thead><tr><th>variant</th><th class="num">Events</th><th class="num">Users</th></tr></thead>
+            <tbody>
+              <tr><td>seller_check</td><td class="num">26</td><td class="num">15</td></tr>
+              <tr><td>tenant_check</td><td class="num">9</td><td class="num">7</td></tr>
+              <tr><td>landlord_check</td><td class="num">7</td><td class="num">6</td></tr>
+              <tr><td>retained_tenant_check</td><td class="num">7</td><td class="num">5</td></tr>
+              <tr><td>buyer_check</td><td class="num">6</td><td class="num">5</td></tr>
+            </tbody>
+          </table>
+          <h3 style="margin-top:1rem">Status — waiting on (bottleneck)</h3>
+          <table>
+            <thead><tr><th>waiting_on</th><th class="num">Events</th><th class="num">Users</th></tr></thead>
+            <tbody>
+              <tr><td>compliance_team</td><td class="num">27</td><td class="num">14</td></tr>
+              <tr><td>advisor</td><td class="num">20</td><td class="num">9</td></tr>
+              <tr><td>client</td><td class="num">8</td><td class="num">5</td></tr>
+              <tr><td>FCS Compliance</td><td class="num">2</td><td class="num">2</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1.25rem">
+        <ul class="obs">
+          <li><strong>Funnel (users):</strong> 44 → 35 (80%) → 31 (70%) → 22 (50%) → 18 (41%) → <strong>1 completed (2%)</strong>. Biggest drop-off is create-started → submitted (~37% of starters never submit); the tail is process time, not abandonment.</li>
+          <li><strong>Step depth:</strong> avg completed step 1.81 across 229 step events (31 users). Per-step breakdown not possible via API — <code>step</code> is registered as a custom <em>metric</em>, not a <em>dimension</em> (see instrumentation gaps).</li>
+          <li><strong>Search:</strong> 13 searches by 6 users, avg query length 18.6 chars — AML list search is barely used (44 users view the list, 6 search it).</li>
+          <li><strong>No drafts in window:</strong> every submission has <code>is_draft=false</code> — the draft-save path is either unused or fires through an untracked route.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ DOCUMENTS ============ -->
+    <section id="documents">
+      <h2>2 · Documents (PandaDoc) <span class="pill warn">partially instrumented — 1 event</span></h2>
+      <p class="section-desc"><code>document_sent</code> fires from both the final-send hook (with <code>templateId</code> param) and the draft-send hook (no params). 28 days, production.</p>
+      <div class="kpi-grid" style="margin-bottom:1.25rem">
+        <div class="kpi"><div class="label">Docs sent</div><div class="value">28</div><div class="sub">users · 68 events (sent + draft-sent)</div></div>
+        <div class="kpi"><div class="label">/document list</div><div class="value">50</div><div class="sub">users · 520 views · 3m 23s avg</div></div>
+        <div class="kpi"><div class="label">/document/send</div><div class="value">40</div><div class="sub">users · 213 views · <strong>26m 18s avg</strong></div></div>
+        <div class="kpi"><div class="label">Doc detail pages</div><div class="value">~80</div><div class="sub">distinct /document/[id] pages visited (1–2 users each)</div></div>
+      </div>
+      <div class="card">
+        <ul class="obs">
+          <li><strong>Documents is the deepest engagement surface in the app</strong> — 26m 18s avg session on /document/send vs ~2–4m everywhere else. It's where actual document prep work happens.</li>
+          <li><strong>56% of all prod users</strong> (40 of ~71 app users) touched /document/send in 28 days; 28 users actually sent something (≈55% of send-page users).</li>
+          <li><strong>Gap:</strong> <code>templateId</code> is sent but <em>not registered</em> as a GA custom dimension, so sends can't be split by template (ToB / Lettings / Tenant / Buy). Also, draft-sends and final-sends are indistinguishable in GA (same event, param presence only — and unregistered).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ AUTH ============ -->
+    <section id="auth">
+      <h2>3 · Auth &amp; SSO <span class="pill warn">partially instrumented — login not arriving</span></h2>
+      <p class="section-desc">Code tracks <code>login</code> (method: password | jwt) and <code>logout</code>. 28 days, production.</p>
+      <div class="alert"><strong>⚠ <code>login</code> events are not in GA at all</strong> — only <code>logout</code> (8 events / 2 users) and auto <code>form_start</code> (288 / 227 users) appear. The login events are sent in <code>src/contexts/auth-context.tsx</code> but evidently fire before GA is initialised (or on a page without gtag). The password-vs-SSO breakdown can't be built until this is fixed.</p>
+      <div class="kpi-grid" style="margin-bottom:1.25rem">
+        <div class="kpi"><div class="label">/login users</div><div class="value">92</div><div class="sub">269 sessions · 392 views ≈ 4.3 views/user</div></div>
+        <div class="kpi"><div class="label">/sso users</div><div class="value">31</div><div class="sub">40 sessions · token hand-off path</div></div>
+        <div class="kpi"><div class="label">logout events</div><div class="value">8</div><div class="sub">2 users</div></div>
+        <div class="kpi"><div class="label">login events in GA</div><div class="value down">0</div><div class="sub">tracking broken / pre-init</div></div>
+      </div>
+      <div class="card">
+        <ul class="obs">
+          <li><strong>91% of all prod users pass through /login</strong> (92 of 101) with ~4.3 page views each — consistent with SSO magic-link + token re-entry flows, but the <code>login</code> event gap means we can't confirm success vs retry/failure.</li>
+          <li><strong>1/3 of users (31) used the /sso path</strong> — a significant share of auth is SSO-driven (matches the Referral channel: SSO redirects from other tools).</li>
+          <li><strong>Recommendation:</strong> move <code>sendGAEvent('login')</code> to after <code>setUserIdInGa</code>/gtag init (or re-send on first authenticated page view); register <code>method</code> as a custom dimension.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ FEATURE ADOPTION ============ -->
+    <section id="adoption">
+      <h2>4 · Feature Adoption Matrix <span class="pill off">page-level only — no custom events</span></h2>
+      <p class="section-desc">All 16 feature routes from the repo's feature map, measured against the <strong>101</strong> prod active users (28 days). User counts are distinct users on the route's top page(s); routes with no prod page views at all show 0.</p>
+      <div class="two-col">
+        <div class="card"><div class="chart-box tall"><canvas id="adoptionChart"></canvas></div></div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Route</th><th>Purpose (mem:core)</th><th class="num">Users</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><code>/document</code></td><td>Documents via PandaDoc</td><td class="num">50</td><td><span class="pill ok">active</span></td></tr>
+              <tr><td><code>/aml</code></td><td>Compliance (AML) submissions</td><td class="num">45</td><td><span class="pill ok">active</span></td></tr>
+              <tr><td><code>/home</code></td><td>Dashboard &amp; quick links</td><td class="num">70</td><td><span class="pill ok">active</span></td></tr>
+              <tr><td><code>/monday</code></td><td>Property onboarding checklist</td><td class="num">25</td><td><span class="pill warn">used</span></td></tr>
+              <tr><td><code>/profile</code></td><td>Advisor profile</td><td class="num">2</td><td><span class="pill off">minimal</span></td></tr>
+              <tr><td><code>/settings</code></td><td>Profile &amp; password</td><td class="num">1</td><td><span class="pill off">minimal</span></td></tr>
+              <tr><td><code>/search</code></td><td>Buyer/tenant searches (requirements) + Brief Hub</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/offer</code></td><td>Offers on listings/searches</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/viewing</code></td><td>Property viewings</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/lead</code></td><td>Leads</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/referral</code></td><td>View &amp; process referrals</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/keys</code></td><td>Key management</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/appointment</code></td><td>Appointment/event calendar</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/building</code></td><td>Building records</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/property</code></td><td>Units within buildings</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/listing</code></td><td>Marketing listings (WIP)</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+              <tr><td><code>/contact</code></td><td>Client contacts</td><td class="num">0</td><td><span class="pill bad">no prod usage</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.25rem">
+        <ul class="obs">
+          <li><strong>Prod adoption is concentrated in a narrow slice:</strong> home, documents, AML, monday + auth pages account for essentially all prod usage. 10 of 16 feature routes have <strong>zero production page views in 28 days</strong> (they are exercised on localhost/E2E but not by real users).</li>
+          <li><strong>Caveat:</strong> zero could mean "not adopted" or "not released to prod / not enabled for these users" — the repo marks <code>/listing</code> WIP. Worth a product decision: ship, hide, or remove the dormant modules from the sidebar.</li>
+          <li><strong>These routes have no custom events,</strong> so if/when they get used, only page-level signals will exist. Instrument at launch, not after.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ MONDAY ============ -->
+    <section id="monday">
+      <h2>5 · Monday.com Onboarding Checklist <span class="pill off">page-level only</span></h2>
+      <p class="section-desc">Property onboarding tracker (task statuses, notes, property tasks). 28 days, production.</p>
+      <div class="kpi-grid" style="margin-bottom:1.25rem">
+        <div class="kpi"><div class="label">/monday users</div><div class="value">25</div><div class="sub">68 sessions · 87 views</div></div>
+        <div class="kpi"><div class="label">Deep views</div><div class="value">1</div><div class="sub">/monday/[itemId] opened once</div></div>
+        <div class="kpi"><div class="label">Reach</div><div class="value">25%</div><div class="sub">of the 101 prod users</div></div>
+      </div>
+      <div class="card">
+        <ul class="obs">
+          <li><strong>Quarter of users open the checklist, but almost nobody drills into a property's tasks</strong> — the [itemId] detail view had a single user in 28 days. Either the onboarding flow is done (checklist is a maintenance view) or the drill-in isn't being reached.</li>
+          <li><strong>Gap:</strong> task status changes (status-selection-dropdown, property-tasks) are not tracked — checklist completion can't be measured. Recommend <code>monday_task_status_changed</code> (property_id, task, from, to) and <code>monday_checklist_opened</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ PIPELINE ============ -->
+    <section id="pipeline">
+      <h2>6 · Search → Offer → Viewing pipeline <span class="pill bad">no prod usage in window</span></h2>
+      <p class="section-desc">The core broker loop: <code>/search</code> (requirements + Brief Hub) → <code>/offer</code> → <code>/viewing</code>, plus <code>/lead</code>. 28 days, production.</p>
+      <div class="card">
+        <ul class="obs">
+          <li><strong>No production page views on any of these routes in the window</strong> — the pipeline is currently dev/E2E-only (heavy localhost presence: /search, /lead, /listing-e2e-*, requirement-e2e-*).</li>
+          <li>If these features are intended for prod users, this is the biggest product signal in the report: the transactional core of the product has no live usage yet. If they're not released, hide them from prod navigation to avoid confusion.</li>
+          <li><strong>Gap:</strong> none of these routes have conversion events (requirement created, offer made, viewing booked). A pipeline funnel report is impossible until events exist.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ GAPS ============ -->
+    <section id="gaps">
+      <h2>7 · Instrumentation Gaps &amp; Recommendations</h2>
+      <div class="card">
+        <table>
+          <thead><tr><th>Gap</th><th>Impact</th><th>Fix</th></tr></thead>
+          <tbody>
+            <tr><td><code>login</code> events missing from GA</td><td>Can't split password vs SSO, can't measure login retries/failures</td><td>Fire after gtag init / re-send on first authenticated page; register <code>method</code> dim</td></tr>
+            <tr><td><code>step</code> is a custom metric, not dimension</td><td>Can't chart per-step drop-off in AML create</td><td>Register <code>customEvent:step</code> as a dimension too</td></tr>
+            <tr><td><code>templateId</code> unregistered</td><td>Can't split document sends by template/group</td><td>Register <code>customEvent:templateId</code> (or map to a small enum)</td></tr>
+            <tr><td>Draft vs final <code>document_sent</code> indistinguishable</td><td>Can't measure draft-sent volume</td><td>Add <code>kind: "draft" | "final"</code> param + register it</td></tr>
+            <tr><td>0 events on /search, /offer, /viewing, /lead, /monday tasks, /keys, /referral, /appointment</td><td>Pipeline &amp; onboarding funnels impossible</td><td>Track create/status-change events before/when these ship to prod</td></tr>
+            <tr><td><code>is_draft</code> always false</td><td>Draft-save path unverified</td><td>Check if draft save fires the event; add <code>aml_draft_saved</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>Noga Web feature &amp; product health · GA4 property 535285702 · prod filter: hostName = noga.global, excl. /moneypenny · feature map from DDRE-Global/web (AGENTS.md + mem:core + src/lib/ga.ts) · generated 2026-09-28 via google-analytics-mcp</footer>
+
+  <script>
+    const grid = "rgba(45,58,79,.6)", tick = "#8b9cb3";
+
+    new Chart(document.getElementById("amlFunnel"), {
+      type: "bar",
+      data: { labels: ["List viewed","Create started","Steps done (31u)","Submitted","Status viewed","Completed"],
+        datasets: [{ label: "Users", data: [44,35,31,22,18,1], backgroundColor: ["#a78bfa","#a78bfa","#a78bfa","#a78bfa","#a78bfa","#f87171"] }] },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { color: grid }, ticks: { color: tick } }, y: { grid: { display: false }, ticks: { color: tick } } }
+      }
+    });
+
+    new Chart(document.getElementById("adoptionChart"), {
+      type: "bar",
+      data: { labels: ["/home","/document","/aml","/monday","/profile","/settings","/search","/offer","/viewing","/lead","/referral","/keys","/appointment","/building","/property","/listing","/contact"],
+        datasets: [{ label: "Users (28d, prod)", data: [70,50,45,25,2,1,0,0,0,0,0,0,0,0,0,0,0],
+          backgroundColor: ["#4f8cff","#38bdf8","#a78bfa","#fbbf24","#8b9cb3","#8b9cb3","#f87171","#f87171","#f87171","#f87171","#f87171","#f87171","#f87171","#f87171","#f87171","#f87171","#f87171"] }] },
+      options: {
+        indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { color: grid }, ticks: { color: tick } }, y: { grid: { display: false }, ticks: { color: tick, font: { family: "monospace", size: 11 } } } }
+      }
+    });
+  </script>
+</body>
+</html>
