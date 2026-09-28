@@ -11,6 +11,23 @@ This repo holds the MCP server source plus our report assets:
 - `reports/noga-web-features-report-*.html` — feature & product health deep-dives
 - `examples/noga-web-funnels.json` — reference funnels
 
+## Knowledgebase (read & maintain)
+
+**`knowledgebase/`** is the living log of gotchas, data-quality traps, instrumentation findings,
+and decisions. Start there:
+
+- **Before** running the MCP server or re-authenticating → [knowledgebase/mcp-setup.md](knowledgebase/mcp-setup.md)
+- **Before** writing GA queries → [knowledgebase/ga-query-gotchas.md](knowledgebase/ga-query-gotchas.md)
+- **Before** reporting any user KPI → [knowledgebase/data-quality.md](knowledgebase/data-quality.md) (mandatory prod filter)
+- **Before** a feature report → [knowledgebase/instrumentation.md](knowledgebase/instrumentation.md) + [knowledgebase/local-repos.md](knowledgebase/local-repos.md)
+- **Before** writing/committing a report → [knowledgebase/report-conventions.md](knowledgebase/report-conventions.md)
+
+**Maintenance rule:** whenever you hit a non-obvious error, discover a data trap, change a
+convention, or learn how the product works, log a dated entry in the matching file (create a new
+file if the topic doesn't fit) and update the index in [knowledgebase/README.md](knowledgebase/README.md).
+Mark fixed/stale entries `RESOLVED <date>` instead of deleting. Commit knowledgebase updates with
+the work that produced them.
+
 ## Running the MCP server
 
 Installed in `.venv` (uv). It is registered as MCP server `analytics-mcp` in
