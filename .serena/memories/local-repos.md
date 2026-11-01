@@ -21,6 +21,10 @@ anything about their routes or events.
   `/appointment`, `/profile`, `/settings`.
 - Public: `/login`, `/sso`, `/moneypenny` (public page, excluded from prod KPIs: `mem:data-quality`), 401/403.
 - Auth: magic link / password → Strapi JWT → `NOGA_AUTH` HttpOnly cookie.
+- **Gated in production:** `/building`, `/property`, `/listing`, `/contact`, `/lead`, `/referral`,
+  `/appointment`, `/keys`, `/search`, `/offer`, `/client` answer 403 on the prod host unless the deploy is
+  a preview, so a zero report row for them is expected rather than informative (`mem:adoption-baseline`).
+  The rest of the list (`/home`, `/document`, `/monday`, `/aml`, `/profile`, `/settings`) is live.
 
 ## Audit order before any feature report
 
