@@ -13,6 +13,10 @@ Machine plumbing only. The GA query rules live in `mem:ga-query-gotchas`, the fi
 - Read-only by default. Write tools (`create_property_annotation`, and the other admin mutators upstream
   added in v0.8.0) need `--allow-write` **and** the `analytics.edit` scope; this setup authenticates with
   `analytics.readonly`, so they refuse either way. Keep the harness entry write-free.
+- Verified 2026-11-02 against the running harness server (v0.8.0 code, no flag): nine read tools are
+  exposed, and `create_property_annotation` is **not registered at all** without `--allow-write`
+  (`coordinator.create_server` only registers it inside `if allow_write:`). A missing write tool is that
+  gate working, not a broken install.
 
 ### 2026-11-02 — Dependency direction flipped with upstream v0.8.0 (RESOLVED: the old `mcp==1.24.0` pin)
 

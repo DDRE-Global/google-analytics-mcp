@@ -12,8 +12,9 @@ conservative, it is fiction. Every user-facing KPI uses the filter below. Proper
 ] } }
 ```
 
-- `match_type` `1` = exact, `2` = contains (REST bodies take the same structure in camelCase; the enum
-  names and other argument traps are in `mem:ga-query-gotchas`).
+- `match_type` `1` = exact, `2` = starts with (`4` = contains; the table is in
+  `mem:ga-query-gotchas`), verified 2026-11-02 through both the REST endpoint and these tools' snake_case
+  arguments, which return identical rows.
 - Use the `hostName` dimension, **not** `pageLocation`: a contains-filter on `pageLocation` for
   `noga.global` matched 0 rows because the dev traffic lives on localhost.
 - `www.noga.global` is a **distinct host value** and stays excluded; if a report ever includes it, say so.
