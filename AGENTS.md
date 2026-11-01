@@ -1,108 +1,73 @@
-# google-analytics-mcp (local working repo)
+# google-analytics-mcp (DDRE working repo)
 
-Local fork/worktree of Google's `google-analytics-mcp` used to generate **Noga production usage
-reports** (GA4 property **Noga, `535285702`**, measurement ID `G-Q8KR9ZPHVS`).
+Local fork of Google's `google-analytics-mcp` (`origin`: the private `DDRE-Global` fork, upstream:
+`googleanalytics/google-analytics-mcp`). It holds the MCP server source **and** Noga's GA reporting
+assets, used to produce the production usage and feature-health reports.
 
-This repo holds the MCP server source plus our report assets:
+Before doing anything, read `mem:core` (what this repo is and the two absolute rules) and
+`mem:route-map` (which memory to read for the job at hand).
 
-- `prompts/weekly-leadership-report.md` — the weekly leadership report runbook (config + gather steps + fill checklist)
-- `reports/weekly-leadership-report.template.html` — leadership report template (fill all `{{TOKEN}}` / `data-fill` regions)
-- `reports/noga-web-prod-report-*.html` — production usage snapshots
-- `reports/noga-web-features-report-*.html` — feature & product health deep-dives
-- `examples/noga-web-funnels.json` — reference funnels
+# Serena
 
-## Knowledgebase (read & maintain)
+Knowledge lives in **Serena memories** (`.serena/memories/`, git-tracked) and nowhere else. There is no
+`docs/` and no `knowledgebase/` directory, and one must not be reintroduced: a second store drifts
+silently, and a dead path reads exactly like a live one. Rules for writing memories:
+`mem:memory_maintenance`.
 
-**`knowledgebase/`** is the living log of gotchas, data-quality traps, instrumentation findings,
-and decisions. Start there:
+Serena is a machine-global MCP server shared by every DDRE repo; no harness starts it by itself. At the
+start of a session:
 
-- **Before** running the MCP server or re-authenticating → [knowledgebase/mcp-setup.md](knowledgebase/mcp-setup.md)
-- **Before** writing GA queries → [knowledgebase/ga-query-gotchas.md](knowledgebase/ga-query-gotchas.md)
-- **Before** reporting any user KPI → [knowledgebase/data-quality.md](knowledgebase/data-quality.md) (mandatory prod filter)
-- **Before** a feature report → [knowledgebase/instrumentation.md](knowledgebase/instrumentation.md) + [knowledgebase/local-repos.md](knowledgebase/local-repos.md)
-- **Before** writing/committing a report → [knowledgebase/report-conventions.md](knowledgebase/report-conventions.md)
+1. **Make sure it is up.** `bash scripts/serena-up.sh` in any DDRE clone that has it (`web`, `cms`,
+   `sprift-gateway`) probes and starts both processes. From this repo, or if nothing is listening:
+   `serena start-mcp-server --project-from-cwd` (MCP on `127.0.0.1:9121`) and, if symbol-level tools are
+   wanted, `serena start-project-server` (machine-global, one instance, port `24225`). A bare probe of the
+   MCP endpoint answers `400` on a healthy server, and the project server answers `401` without its auth
+   header, so a failed probe proves nothing.
+2. **Read the manual once per session** by calling that server's `initial_instructions` tool (name
+   spelling depends on the harness). It carries the operating modes, the active project, and the memory
+   list. Skip it only if it is already in the conversation.
+3. **Verify the active project.** It must be `google-analytics-mcp`. The active project is *shared server
+   state*, so a session opened after work in `web` finds `web` active: re-assert it with `activate_project`
+   (`{"project": "google-analytics-mcp"}`) instead of flipping it back and forth, and read sibling repos
+   with `query_project`. This repo has no project server of its own and no worktrees.
 
-**Maintenance rule:** whenever you hit a non-obvious error, discover a data trap, change a
-convention, or learn how the product works, log a dated entry in the matching file (create a new
-file if the topic doesn't fit) and update the index in [knowledgebase/README.md](knowledgebase/README.md).
-Mark fixed/stale entries `RESOLVED <date>` instead of deleting. Commit knowledgebase updates with
-the work that produced them.
+Newly registered projects are read once at startup: adding this repo to the registry needs **both**
+Serena processes restarted before `query_project` or symbol tools will see it.
 
-## Running the MCP server
+If no MCP connection can be established, the same memories are plain markdown under
+`.serena/memories/` and can be read from disk. Say so when you fall back, because symbol-level tools
+(references, safe renames, diagnostics) are not replaced by reading files.
 
-Installed in `.venv` (uv). It is registered as MCP server `analytics-mcp` in
-`~/.config/mcp/mcp.json` (command: `.venv/bin/python -m analytics_mcp.server`, cwd = this repo,
-`GOOGLE_APPLICATION_CREDENTIALS` = gcloud ADC, `GOOGLE_PROJECT_ID=serious-bearing-499201-q3`).
+# Layout
 
-- Pin `mcp==1.24.0` in the venv — the repo code breaks with MCP SDK 2.x (`inputSchema` → `input_schema`).
-- If GA calls fail with `invalid_grant` (refresh token revoked/stale), re-auth in a browser:
-  `gcloud auth application-default login --scopes https://www.googleapis.com/auth/analytics.readonly,https://www.googleapis.com/auth/cloud-platform --client-id-file=secret.json`
-  then restart the MCP server (it caches credentials at startup).
-- `secret.json` (OAuth client JSON) is committed locally — **do not push this repo** anywhere shared.
+| Path | Contents |
+| --- | --- |
+| `analytics_mcp/` | server (`server.py`), tool wiring (`coordinator.py`), GA clients and tools (`tools/`) |
+| `prompts/` | report runbooks (the weekly leadership report gather steps) |
+| `reports/` | generated HTML reports + the dark-design leadership template |
+| `examples/` | reference funnel definitions |
+| `.serena/memories/` | **the knowledge store** (auth, data quality, query traps, instrumentation, conventions) |
 
-## GA query rules (non-negotiable)
+GA4 property **Noga `535285702`**, measurement `G-Q8KR9ZPHVS`, prod host `noga.global`.
 
-1. **Production filter on EVERY query** for user-facing KPIs:
-   ```json
-   { "and_group": { "expressions": [
-     { "filter": { "field_name": "hostName", "string_filter": { "match_type": 1, "value": "noga.global" } } },
-     { "not_expression": { "filter": { "field_name": "pagePath", "string_filter": { "match_type": 1, "value": "/moneypenny" } } } }
-   ] } }
-   ```
-   - `hostName` exact — `www.noga.global` is a **distinct host** (excluded); `localhost` is dev/E2E (excluded by host filter).
-   - `/moneypenny` is a **public page** — it adds ~200 one-view "new" users/month and skews users, cities, and devices.
-2. **Sanity check**: prod active users should be in the *tens* (~100 per 28 days as of Sep 2026).
-   Hundreds → moneypenny exclusion dropped; tens of thousands → host filter dropped.
-3. Tool args are **snake_case** (protobuf), not the REST camelCase from Google docs.
-   Filter expressions need the `{ "filter": {...} }` wrapper inside `and_group`/`or_group`/`not_expression`.
-   `order_bys` use `{ "metric": { "metric_name": "..." } }`.
-4. Metric/dimension names that fail: `totalEvents` → `eventCount`; `deviceBrand` → `mobileDeviceBranding`;
-   `metric: { fieldName }` → `metric: { metric_name }`.
-5. Never report unfiltered `activeUsers` as "advisors" — label KPIs **Prod active users**.
+# Running the server
 
-## Auditing local repos (do this before any feature report)
+`.venv` at the repo root (uv), started as `.venv/bin/python -m analytics_mcp.server`, registered with the
+harness as `analytics-mcp`. `python -m` runs **this checkout's** code, so after a pull that touches
+`pyproject.toml`, sync the environment (`uv pip install --python .venv/bin/python -r pyproject.toml`)
+before restarting it, then verify with `--help`. The dependency floor and the historical pin saga, the
+read-only `--allow-write` gate, the harness config location, and the Google re-auth recipe (its refresh
+token dies roughly monthly) are all in `mem:tool-setup`.
 
-Feature reports must be grounded in the actual product code — **audit the local repo first**,
-don't guess features or events:
+# Absolute rules
 
-1. **Find the repo**: local checkouts live under `/home/kevin/@noga-1/` (e.g. `web` = DDRE-Global/web,
-   `cms` = DDRE-Global/cms). Confirm with the user if unclear.
-2. **Read the repo's `AGENTS.md`** (if present). For `web`, it defers to Serena memories — check the
-   Serena server is up (`curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:9121/mcp` → 400 = up,
-   else `npm run serena` in the repo), then read `mem:core` (feature routes map + invariants) and any
-   feature-specific memories (`mem:monday-integration`, `mem:audit-trails`, …).
-3. **Read the GA instrumentation source**. For `web` it is `src/lib/ga.ts` (all `sendGAEvent` helpers)
-   plus `grep -rn "sendGAEvent" src` for ad-hoc calls (auth-context, hooks). This tells you which events
-   exist and with what parameters.
-4. **Cross-check against GA**: call `get_custom_dimensions_and_metrics` on the property.
-   Only **registered** event parameters can be used as dimensions — unregistered params (e.g.
-   `templateId`, `login`'s `method`) are dropped by GA. Metrics (`customEvent:step`, `:document_count`,
-   `:query_length`) cannot be grouped by.
-5. **Verify hosts/URLs**: pull top `pageLocation`/`hostName` rows and confirm the rows you're reporting
-   on are real prod URLs before quoting numbers.
-6. **Map features → events → data availability**, and call out gaps (events sent in code but absent in GA,
-   unregistered params, zero-usage features) in the report's gaps section.
-
-### Instrumentation snapshot (web, audited 2026-09-28 — re-verify per report)
-
-- **Fully instrumented**: AML — `aml_list_viewed`, `aml_create_started`, `aml_create_step_completed`,
-  `aml_request_submitted`, `aml_request_updated`, `aml_status_viewed`, `aml_search`, `aml_metric_filter_selected`.
-- **Partially**: Documents — `document_sent` (final send carries `templateId`; draft send bare).
-  Auth — `login` (method password|jwt, **not arriving in GA**) and `logout`.
-- **Page-level only**: `/monday`, `/search`, `/offer`, `/viewing`, `/lead`, `/referral`, `/keys`,
-  `/appointment`, `/building`, `/property`, `/listing`, `/contact`, `/profile`, `/settings`.
-- Registered custom dimensions: `request_type`, `variant`, `is_draft`, `waiting_on`, `aml_complete`,
-  `source`, `metric_id`, `aml_document_id`.
-
-## Report conventions
-
-- Output to `reports/`, named `<subject>-<type>-YYYY-MM-DD.html` (report date).
-- **Commit and push** when meaningful changes have been made: new/updated reports, prompt or template
-  updates, and AGENTS.md changes. Use clear conventional-commit-style messages (e.g.
-  `docs(reports): Noga prod usage snapshot 2026-09-28`, `feat(reports): feature adoption section in template`).
-  Never commit credentials (`secret.json`, ADC files) — if one appears in `git status`, stop and fix the ignore first.
-- Reuse the dark design system from `reports/weekly-leadership-report.template.html` (Chart.js via CDN,
-  `--surface`/`--border` variables, kpi-grid cards). Standalone/self-contained HTML.
-- Every report must state its **period, property, and exact filter** in the hero/note.
-- Never invent numbers — if a query fails, mark `--` / "Unavailable" and explain in a note.
-- Distinguish "no prod usage" from "no data" — check the feature is actually deployed before claiming zero adoption.
+1. **Every** user-facing KPI query carries the mandatory prod filter. The exact expression, what it
+   removes and the sanity bands: `mem:data-quality`. An unfiltered number on this property is not
+   conservative, it is wrong: ~93% of the raw traffic is dev and E2E.
+2. **No credential is ever committed, pushed or printed.** `secret.json` is a live OAuth client; it is
+   gitignored and untracked (verified: never in history). So are ADC files and any service-account JSON.
+   If one appears in `git status`, fix the ignore before committing anything else.
+3. Never invent a number, and never report a page-view-only feature as unused without working through
+   `mem:adoption-baseline` and `mem:instrumentation`.
+4. Report output goes to `reports/`, self-contained, hero stating period, property and exact filter
+   (`mem:report-conventions`).
